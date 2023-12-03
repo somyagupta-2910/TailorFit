@@ -19,16 +19,21 @@ public class OpenAIAPIHandler {
         this.apiKey = apiKey;
     }
 
-    public String sendPromptToGPT(String name, String city, String gender, String ethnicity, int age, 
+    public String sendPromptToGPT(String name, String email, String city, String gender, String country, int age, 
                                   int height, int currentWeight, String medicalConditions, String dietType, 
                                   String foodAllergies, String vegetables, String ingredients, String meat, 
                                   String fruits, String goal, int targetWeight) {
-        String prompt = buildPrompt(name, city, gender, ethnicity, age, height, currentWeight, medicalConditions, 
+    		// The prompt to get the Workout and Meal Plan
+        String prompt = buildPrompt(name, city, gender, country, age, height, currentWeight, medicalConditions, 
                                     dietType, foodAllergies, vegetables, ingredients, meat, fruits, goal, targetWeight);
-        return sendPostRequest(prompt);
+        
+        // Receive prompt from GPT
+        String response = sendPostRequest(prompt);
+
+        return response;
     }
 
-    private String buildPrompt(String name, String city, String gender, String ethnicity, int age, 
+    private String buildPrompt(String name, String city, String gender, String country, int age, 
                                int height, int currentWeight, String medicalConditions, String dietType, 
                                String foodAllergies, String vegetables, String ingredients, String meat, 
                                String fruits, String goal, int targetWeight) {
@@ -39,7 +44,7 @@ public class OpenAIAPIHandler {
         		+ "Name: " + name + "\n"
         		+ "City: " + city + "\n"
         		+ "Gender: " + gender + "\n"
-        		+ "Ethnicity: " + ethnicity + "\n"
+        		+ "Country: " + country + "\n"
         		+ "Age: " + age + "\n"
         		+ "Height: " + height + "\n"
         		+ "Current Weight: " + currentWeight + "\n"
@@ -69,8 +74,8 @@ public class OpenAIAPIHandler {
         		+ "\n"
         		+ "7-day 3 meals plan \n"
         		+ "- Give a detailed and a healthy meal plan based on the individual's goal and characteristics\n"
-        		+ "- give a macro breakdown and calories count of each meal.\n"
-        		+ "- The diet plan should be based on the person's ethnicity and where the person currently lives.\n"
+        		+ "- give a macros breakdown (Protein, Carbs, and Fat) and calories count of each meal.\n"
+        		+ "- The diet plan should be based on the person's country of birth and where the person currently lives.\n"
         		+ "- Also, make sure to check on the person's existing medical conditions and food allergies and give meal plan recommendations accordingly.\n"
         		+ "- Give a meal plan for 7 days. DO NOT STOP at DAY 1\n"
         		+ "\n"
@@ -100,10 +105,10 @@ public class OpenAIAPIHandler {
             messagesArray.put(message);
 
             JSONObject jsonBody = new JSONObject();
-            jsonBody.put("model", "gpt-3.5-turbo-1106");
+            jsonBody.put("model", "gpt-3.5-turbo-1106"); //gpt-4-1106-preview gpt-3.5-turbo-1106
             jsonBody.put("messages", messagesArray);
             jsonBody.put("temperature", 1);
-            jsonBody.put("max_tokens", 2000);
+            jsonBody.put("max_tokens", 4096);
             jsonBody.put("top_p", 1);
             jsonBody.put("frequency_penalty", 0);
             jsonBody.put("presence_penalty", 0);
@@ -141,9 +146,9 @@ public class OpenAIAPIHandler {
     }
 
     public static void main(String[] args) {
-        OpenAIAPIHandler apiHandler = new OpenAIAPIHandler("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"); // Replace with your actual API key
+        OpenAIAPIHandler apiHandler = new OpenAIAPIHandler("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"); // Replace with your actual API key
 
-        String response = apiHandler.sendPromptToGPT("Somya Gupta", "New York", "Male", "Indian", 24, 170, 100, "None", "Omnivore", "Dairy", "Potato, Onion, Tomato, Carrot", "Lentils", "Chicken", "Apple, Banana", "Lose Weight", 70);
+        String response = apiHandler.sendPromptToGPT("Somya Gupta", "somyag00@gmail.com", "New York", "Male", "India", 24, 170, 100, "None", "Omnivore", "Dairy", "Potato, Onion, Tomato, Carrot", "Lentils", "Chicken", "Apple, Banana", "Lose Weight", 70);
         System.out.println(response);
     }
 }
