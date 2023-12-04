@@ -1,4 +1,5 @@
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -26,8 +27,8 @@ public class Server extends JFrame implements Runnable{
 	// Text area for displaying contents
 	JTextArea ta;
 	// List of clients
-	private static List<PrintWriter> clients = new ArrayList<>();
-    private static final ExecutorService executorService = Executors.newFixedThreadPool(10);
+	// private static List<PrintWriter> clients = new ArrayList<>();
+    // private static final ExecutorService executorService = Executors.newFixedThreadPool(10);
 
 
     public Server() {
@@ -76,14 +77,23 @@ public class Server extends JFrame implements Runnable{
     // Method to handle client for each server thread
 	private static void handleClient(Socket clientSocket) {
 		try {
-			long threadId = clientThreadId.get();
+			// long threadId = clientThreadId.get();
+
+            // Read the User object from the client
+            ObjectInputStream objectInputStream = new ObjectInputStream(clientSocket.getInputStream());
+            User receivedUser = (User) objectInputStream.readObject();
+
+            System.out.println("Received user: " + receivedUser.toString());
+
+// Now you have the User object on the server side
 			// Create data input and output streams
-            Scanner in = new Scanner(clientSocket.getInputStream());
-            PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
+            // Scanner in = new Scanner(clientSocket.getInputStream());
+            // PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
 			
             // Add the client's PrintWriter to the list of clients
-            clients.add(out);
+            // clients.add(out);
 
+            /* 
             while (true) {
                 
                 try {
@@ -93,12 +103,13 @@ public class Server extends JFrame implements Runnable{
                     String message = in.nextLine();
                     // Broadcast the message to all clients with the thread ID
                     // broadcast(threadId + ": " + decryptedMessage);
-                    broadcast(threadId + ": " + message);
+                    // broadcast(threadId + ": " + message);
                 } catch (Exception e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
             }
+            */
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -115,7 +126,7 @@ public class Server extends JFrame implements Runnable{
 		// Set the visibility of the JFrame
 		appServer.setVisible(true);
 
-
+        /*
         // Create multiple tasks for submitting forms
         for (int i = 0; i < 10; i++) {
             executorService.submit(() -> {
@@ -129,8 +140,10 @@ public class Server extends JFrame implements Runnable{
 
         // Shutdown the executorService when the application is done
         executorService.shutdown();
+         */
     }
 
+    /* 
     private static void processFormData(User user) {
         // Use a connection pool to get a connection
         try (Connection connection = getConnectionFromPool()) {
@@ -144,8 +157,10 @@ public class Server extends JFrame implements Runnable{
     // Simulate getting user data from a GUI form
     private static User getUserFromForm() {
         // Replace this with your actual logic to get user data from the GUI form
-        return new User(/* User data */);
+        return new User(User data);
     }
+
+    */
 
     // Simulate saving user data to the database
     private static void saveUserToDatabase(Connection connection, User user) throws SQLException {
@@ -154,16 +169,18 @@ public class Server extends JFrame implements Runnable{
             // Set parameters and execute the statement
             preparedStatement.setString(1, user.getFirstName());
             preparedStatement.setString(2, user.getLastName());
-            preparedStatement.setString(3, user.getEmail());
+            //preparedStatement.setString(3, user.getEmail());
             // ... Set other parameters
 
             preparedStatement.executeUpdate();
         }
     }
 
+    /* 
     // Simulate getting a connection from a connection pool
     private static Connection getConnectionFromPool() throws SQLException {
         // Replace this with your actual logic to get a connection from a connection pool
         return YourConnectionPool.getConnection();
     }
+    */
 }

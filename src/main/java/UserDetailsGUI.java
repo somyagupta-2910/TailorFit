@@ -3,6 +3,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.Scanner;
@@ -25,9 +26,12 @@ public class UserDetailsGUI extends JFrame {
         setLayout(new GridLayout(0, 2));
 
         // Create labels and text fields for user details
-        add(new JLabel("Name:"));
-        JTextField nameField = new JTextField();
-        add(nameField);
+        add(new JLabel("First Name:"));
+        JTextField firstNameField = new JTextField();
+        add(firstNameField);
+        add(new JLabel("Last Name:"));
+        JTextField lastNameField = new JTextField();
+        add(lastNameField);
 
         add(new JLabel("Email ID:"));
         JTextField emailField = new JTextField();
@@ -206,20 +210,45 @@ public class UserDetailsGUI extends JFrame {
                 // Handle the submit button action here
                 // You can retrieve the values entered by the user using the fields and dropdowns
                 // For example:
-                String name = nameField.getText();
+                String firstName = firstNameField.getText();
+                String lastName = lastNameField.getText();
                 String email = emailField.getText();
-                // Retrieve other values similarly
+                String city = cityField.getText();
+                String gender = genderComboBox.getSelectedItem().toString();
+                String ethnicity = ethnicityComboBox.getSelectedItem().toString();
+                int age = Integer.parseInt(ageField.getText());
+                double height = Double.parseDouble(heightField.getText());
+                double currentWeight = Double.parseDouble(weightField.getText());
+                String medicalConditions = medicalConditionsComboBox.getSelectedItem().toString();
+                String dietType = dietTypeComboBox.getSelectedItem().toString();
+                String allergies = allergiesComboBox.getSelectedItem().toString();
+                String goal = goalsComboBox.getSelectedItem().toString();
+                double targetWeight = Double.parseDouble(targetWeightField.getText());
+                
+                // WHAT TO DO WITH CHECKBOXES!!
+                //String vegetables = vegetableCheckBoxes.toString();
 
                 // Print or use the values as needed
-                System.out.println("Name: " + name);
+                System.out.println("First Name: " + firstName);
+                System.out.println("Last Name: " + lastName);
                 System.out.println("Email: " + email);
                 // Print or use other values similarly
 
                 // Create new user object and assign it all the values from 
                 // the text fields and dropdowns
                 // Then send the user object to the server
-                User user = new User(name, email);
-            }
+                User user = new User(firstName, lastName, email, city, gender, ethnicity,
+                    age, height, currentWeight, medicalConditions, null, dietType, allergies, goal,
+                    targetWeight);
+                
+                // Send the user object to the server
+                sendUserToServer(user);
+            }   /*
+                public User(String firstName, String lastName, String email, String city, String gender,
+                String ethnicity, int age, double height, double currentWeight,
+                String medicalConditions, String foodOptions, String dietType,
+                String foodAllergies, String goal, double targetWeight)
+                */
         });
         add(submitButton);
 
@@ -300,6 +329,26 @@ public class UserDetailsGUI extends JFrame {
         }
     }
 
+    private void sendUserToServer(User user) {
+        try {
+            // Ensure the PrintWriter is initialized
+            if (out != null) {
+                // Use ObjectOutputStream to send the User object over the network
+                ObjectOutputStream objectOutputStream = new ObjectOutputStream(clientSocket.getOutputStream());
+                objectOutputStream.writeObject(user);
+                objectOutputStream.flush();
+                
+                // Optionally, you can notify the user that the data has been sent successfully
+                JOptionPane.showMessageDialog(UserDetailsGUI.this, "User data sent successfully!");
+            } else {
+                // Handle the case where PrintWriter is not initialized
+                JOptionPane.showMessageDialog(UserDetailsGUI.this, "Error: PrintWriter not initialized.");
+            }
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(UserDetailsGUI.this, "Error sending user data: " + ex.getMessage());
+        }
+    }
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(new Runnable() {
