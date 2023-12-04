@@ -134,7 +134,7 @@ public class UserDetailsGUI extends JFrame {
                     @Override
                     public void run() {
                         User user = createUser();
-                        OpenAIAPIHandler apiHandler = new OpenAIAPIHandler("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"); // Replace with actual API key
+                        OpenAIAPIHandler apiHandler = new OpenAIAPIHandler("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");
                         String response = apiHandler.sendPromptToGPT(user);
                         System.out.println(response);
                         responseArea.setText(response); // Update with the actual response

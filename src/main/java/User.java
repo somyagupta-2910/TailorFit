@@ -1,3 +1,5 @@
+import java.util.Arrays;
+
 public class User {
     private String firstName;
     private String email;
@@ -206,6 +208,12 @@ public class User {
                 ", foodAllergies='" + foodAllergies + '\'' +
                 ", goal='" + goal + '\'' +
                 ", targetWeight=" + targetWeight +
+                ", vegetables=" + Arrays.toString(vegetables) +
+                ", fruits=" + Arrays.toString(fruits) +
+                ", dairy=" + Arrays.toString(dairy) +
+                ", meatAndEggs=" + Arrays.toString(meatAndEggs) +
+                ", wholeGrains=" + Arrays.toString(wholeGrains) +
                 '}';
     }
+
 }
