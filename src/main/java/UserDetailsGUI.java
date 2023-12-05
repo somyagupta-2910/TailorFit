@@ -2,6 +2,10 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.io.PrintWriter;
+import java.net.Socket;
 import java.util.ArrayList;
 
 public class UserDetailsGUI extends JFrame {
@@ -11,6 +15,11 @@ public class UserDetailsGUI extends JFrame {
     private JPanel inputPanel;
     private JTextArea responseArea;
     private JScrollPane scrollPane;
+
+    // Nigel
+    // Socket variables
+	Socket clientSocket;
+	PrintWriter out;
 
     public UserDetailsGUI() {
         setTitle("TailorFit");
@@ -113,6 +122,26 @@ public class UserDetailsGUI extends JFrame {
         targetWeightField = new JTextField();
         add(targetWeightField);
 
+        // Nigel{
+        // Create menu bar
+        JMenuBar menuBar = new JMenuBar();
+        setJMenuBar(menuBar);
+
+        // Create "File" menu
+        JMenu fileMenu = new JMenu("File");
+        menuBar.add(fileMenu);
+
+        // Create "Connect" menu item
+        JMenuItem connectMenuItem = new JMenuItem("Connect");
+        connectMenuItem.addActionListener(new ConnectActionListener());
+        fileMenu.add(connectMenuItem);
+
+        // Create "Close" menu item
+        JMenuItem closeMenuItem = new JMenuItem("Close");
+        closeMenuItem.addActionListener(new CloseActionListener());
+        fileMenu.add(closeMenuItem);
+        // }
+
         // Initialize the JTextArea and JScrollPane
         responseArea = new JTextArea();
         responseArea.setEditable(false); // Make it read-only
@@ -134,13 +163,18 @@ public class UserDetailsGUI extends JFrame {
                     @Override
                     public void run() {
                         User user = createUser();
-                        OpenAIAPIHandler apiHandler = new OpenAIAPIHandler("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");
+                        /* UNCOMMENT ME!
+                        OpenAIAPIHandler apiHandler = new OpenAIAPIHandler("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");
                         String response = apiHandler.sendPromptToGPT(user);
                         System.out.println(response);
                         responseArea.setText(response); // Update with the actual response
+                         */
+
+                        // Nigel
+                        // Send the user object to the server
+                        sendUserToServer(user);
                     }
                 }).start();
-
             }
         });
         inputPanel.add(submitButton);
@@ -205,6 +239,67 @@ public class UserDetailsGUI extends JFrame {
             add(checkBox);
         }
     }
+
+    // Nigel{
+    private class ConnectActionListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+			// Set up client connection
+			try {
+				clientSocket = new Socket("localhost", 9898);
+				// Scanner serverInput = new Scanner(clientSocket.getInputStream());
+				out = new PrintWriter(clientSocket.getOutputStream(), true);
+
+				
+			} catch (Exception e1) {
+				throw new RuntimeException("Error connecting to the server.", e1);
+			}
+		}
+    }
+    // }
+
+    // Nigel{
+    private class CloseActionListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+			try {
+				if (clientSocket != null && !clientSocket.isClosed()) {
+					clientSocket.close();
+					// textArea.append("Connection closed\n");
+				}
+			} catch (IOException ex) {
+				ex.printStackTrace();
+				// textArea.append("Error closing connection: " + ex.getMessage() + "\n");
+			}finally {
+				// Dispose of the JFrame
+				dispose();
+			}
+        }
+    }
+    // }
+
+    // Nigel{
+    private void sendUserToServer(User user) {
+        try {
+            // Ensure the PrintWriter is initialized
+            if (out != null) {
+                // Use ObjectOutputStream to send the User object over the network
+                ObjectOutputStream objectOutputStream = new ObjectOutputStream(clientSocket.getOutputStream());
+                objectOutputStream.writeObject(user);
+                objectOutputStream.flush();
+                
+                // Optionally, you can notify the user that the data has been sent successfully
+                JOptionPane.showMessageDialog(UserDetailsGUI.this, "User data sent successfully!");
+            } else {
+                // Handle the case where PrintWriter is not initialized
+                JOptionPane.showMessageDialog(UserDetailsGUI.this, "Error: PrintWriter not initialized.");
+            }
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(UserDetailsGUI.this, "Error sending user data: " + ex.getMessage());
+        }
+    }
+    // }
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(new Runnable() {
