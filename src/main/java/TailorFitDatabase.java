@@ -5,7 +5,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 public class TailorFitDatabase {
-    
+
     private static final String JDBC_URL = "jdbc:mysql://localhost:3306/";
     private static final String USERNAME = "root";
     private static final String PASSWORD = "password";
@@ -68,51 +68,6 @@ public class TailorFitDatabase {
                 + "TargetWeight DOUBLE"
                 + ")";
 
-                /*
-                 * CREATE TABLE Users (
-                    UserID INT PRIMARY KEY AUTO_INCREMENT,
-                    FirstName VARCHAR(50) NOT NULL,
-                    LastName VARCHAR(50) NOT NULL,
-                    Email VARCHAR(100) UNIQUE NOT NULL,
-                    City VARCHAR(50),
-                    Gender VARCHAR(10),
-                    Ethnicity VARCHAR(50),
-                    Age INT,
-                    Height DOUBLE,
-                    CurrentWeight DOUBLE,
-                    MedicalConditions VARCHAR(255),
-                    FoodOptions VARCHAR(255),
-                    DietType VARCHAR(20),
-                    FoodAllergies VARCHAR(255),
-                    Goal VARCHAR(20),
-                    TargetWeight DOUBLE
-                );
-
-                -- Sample data for MedicalConditions
-                CREATE TABLE MedicalConditions (
-                    ConditionID INT PRIMARY KEY AUTO_INCREMENT,
-                    ConditionName VARCHAR(50) UNIQUE NOT NULL
-                );
-
-                -- Sample data for FoodOptions
-                CREATE TABLE FoodOptions (
-                    FoodOptionID INT PRIMARY KEY AUTO_INCREMENT,
-                    OptionName VARCHAR(50) UNIQUE NOT NULL
-                );
-
-                -- Sample data for DietTypes
-                CREATE TABLE DietTypes (
-                    DietTypeID INT PRIMARY KEY AUTO_INCREMENT,
-                    DietTypeName VARCHAR(20) UNIQUE NOT NULL
-                );
-
-                -- Sample data for Goals
-                CREATE TABLE Goals (
-                    GoalID INT PRIMARY KEY AUTO_INCREMENT,
-                    GoalName VARCHAR(20) UNIQUE NOT NULL
-                );
-                 */
-
         String createGoalsTableSQL = "CREATE TABLE IF NOT EXISTS Goals ("
                 + "GoalID INT PRIMARY KEY AUTO_INCREMENT,"
                 + "GoalName VARCHAR(20) UNIQUE NOT NULL"
@@ -171,3 +126,48 @@ public class TailorFitDatabase {
         }
     }
 }
+
+/*
+    * CREATE TABLE Users (
+        UserID INT PRIMARY KEY AUTO_INCREMENT,
+        FirstName VARCHAR(50) NOT NULL,
+        LastName VARCHAR(50) NOT NULL,
+        Email VARCHAR(100) UNIQUE NOT NULL,
+        City VARCHAR(50),
+        Gender VARCHAR(10),
+        Ethnicity VARCHAR(50),
+        Age INT,
+        Height DOUBLE,
+        CurrentWeight DOUBLE,
+        MedicalConditions VARCHAR(255),
+        FoodOptions VARCHAR(255),
+        DietType VARCHAR(20),
+        FoodAllergies VARCHAR(255),
+        Goal VARCHAR(20),
+        TargetWeight DOUBLE
+    );
+
+    -- Sample data for MedicalConditions
+    CREATE TABLE MedicalConditions (
+        ConditionID INT PRIMARY KEY AUTO_INCREMENT,
+        ConditionName VARCHAR(50) UNIQUE NOT NULL
+    );
+
+    -- Sample data for FoodOptions
+    CREATE TABLE FoodOptions (
+        FoodOptionID INT PRIMARY KEY AUTO_INCREMENT,
+        OptionName VARCHAR(50) UNIQUE NOT NULL
+    );
+
+    -- Sample data for DietTypes
+    CREATE TABLE DietTypes (
+        DietTypeID INT PRIMARY KEY AUTO_INCREMENT,
+        DietTypeName VARCHAR(20) UNIQUE NOT NULL
+    );
+
+    -- Sample data for Goals
+    CREATE TABLE Goals (
+        GoalID INT PRIMARY KEY AUTO_INCREMENT,
+        GoalName VARCHAR(20) UNIQUE NOT NULL
+    );
+*/

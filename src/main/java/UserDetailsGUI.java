@@ -7,7 +7,6 @@ import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.ArrayList;
-// import java.util.Scanner;
 
 public class UserDetailsGUI extends JFrame {
     private JTextField nameField, emailField, cityField, ageField, heightField, weightField, targetWeightField;
@@ -16,10 +15,11 @@ public class UserDetailsGUI extends JFrame {
     private JPanel inputPanel;
     private JTextArea responseArea;
     private JScrollPane scrollPane;
+
+    // Nigel
     // Socket variables
 	Socket clientSocket;
 	PrintWriter out;
-	// Scanner serverInput;
 
     public UserDetailsGUI() {
         setTitle("TailorFit");
@@ -122,7 +122,7 @@ public class UserDetailsGUI extends JFrame {
         targetWeightField = new JTextField();
         add(targetWeightField);
 
-        // Nigel
+        // Nigel{
         // Create menu bar
         JMenuBar menuBar = new JMenuBar();
         setJMenuBar(menuBar);
@@ -140,6 +140,7 @@ public class UserDetailsGUI extends JFrame {
         JMenuItem closeMenuItem = new JMenuItem("Close");
         closeMenuItem.addActionListener(new CloseActionListener());
         fileMenu.add(closeMenuItem);
+        // }
 
         // Initialize the JTextArea and JScrollPane
         responseArea = new JTextArea();
@@ -168,11 +169,12 @@ public class UserDetailsGUI extends JFrame {
                         System.out.println(response);
                         responseArea.setText(response); // Update with the actual response
                          */
+
+                        // Nigel
                         // Send the user object to the server
                         sendUserToServer(user);
                     }
                 }).start();
-
             }
         });
         inputPanel.add(submitButton);
@@ -238,7 +240,7 @@ public class UserDetailsGUI extends JFrame {
         }
     }
 
-
+    // Nigel{
     private class ConnectActionListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
@@ -254,7 +256,9 @@ public class UserDetailsGUI extends JFrame {
 			}
 		}
     }
+    // }
 
+    // Nigel{
     private class CloseActionListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
@@ -272,7 +276,9 @@ public class UserDetailsGUI extends JFrame {
 			}
         }
     }
+    // }
 
+    // Nigel{
     private void sendUserToServer(User user) {
         try {
             // Ensure the PrintWriter is initialized
@@ -293,6 +299,7 @@ public class UserDetailsGUI extends JFrame {
             JOptionPane.showMessageDialog(UserDetailsGUI.this, "Error sending user data: " + ex.getMessage());
         }
     }
+    // }
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(new Runnable() {

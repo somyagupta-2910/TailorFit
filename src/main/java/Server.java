@@ -9,6 +9,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
@@ -98,31 +99,6 @@ public class Server extends JFrame implements Runnable{
                 e.printStackTrace();
             }
 
-// Now you have the User object on the server side
-			// Create data input and output streams
-            // Scanner in = new Scanner(clientSocket.getInputStream());
-            // PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
-			
-            // Add the client's PrintWriter to the list of clients
-            // clients.add(out);
-
-            /* 
-            while (true) {
-                
-                try {
-                    // Read messages from the client
-                    // String encryptedMessage = in.nextLine();
-                    // String decryptedMessage = Encryption.decrypt(clientAesKey, encryptedMessage);
-                    String message = in.nextLine();
-                    // Broadcast the message to all clients with the thread ID
-                    // broadcast(threadId + ": " + decryptedMessage);
-                    // broadcast(threadId + ": " + message);
-                } catch (Exception e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-            }
-            */
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -139,51 +115,31 @@ public class Server extends JFrame implements Runnable{
 		// Set the visibility of the JFrame
 		appServer.setVisible(true);
 
-        /*
-        // Create multiple tasks for submitting forms
-        for (int i = 0; i < 10; i++) {
-            executorService.submit(() -> {
-                // Simulate form submission
-                User user = getUserFromForm(); // Get user data from your GUI form
-
-                // Process the form data
-                processFormData(user);
-            });
-        }
-
-        // Shutdown the executorService when the application is done
-        executorService.shutdown();
-         */
     }
-
-    /* 
-    private static void processFormData(User user) {
-        // Use a connection pool to get a connection
-        try (Connection connection = getConnectionFromPool()) {
-            // Perform database operations with the user data
-            saveUserToDatabase(connection, user);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    // Simulate getting user data from a GUI form
-    private static User getUserFromForm() {
-        // Replace this with your actual logic to get user data from the GUI form
-        return new User(User data);
-    }
-
-    */
 
     // Simulate saving user data to the database
     private static void saveUserToDatabase(Connection connection, User user) throws SQLException {
         
-            String sql = "INSERT INTO Users (FirstName, Email) VALUES (?, ?)";
+            String sql = "INSERT INTO Users (FirstName, LastName, Email, City, Gender, Ethnicity, Age, Height, CurrentWeight, MedicalConditions, FoodOptions, DietType, FoodAllergies, Goal, TargetWeight) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                
             try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
                 // Set parameters and execute the statement
                 preparedStatement.setString(1, user.getFirstName());
-                //preparedStatement.setString(2, user.getLastName());
-                preparedStatement.setString(2, user.getEmail());
+                preparedStatement.setString(2, "Doe");
+                preparedStatement.setString(3, user.getEmail());
+                preparedStatement.setString(4, user.getCity());
+                preparedStatement.setString(5, user.getGender());
+                preparedStatement.setString(6, user.getEthnicity());
+                preparedStatement.setInt(7, user.getAge());
+                preparedStatement.setDouble(8, user.getHeight());
+                preparedStatement.setDouble(9, user.getCurrentWeight());
+                preparedStatement.setString(10, user.getMedicalConditions());
+                preparedStatement.setString(11, Arrays.toString(user.getVegetables()));
+                preparedStatement.setString(12, user.getDietType());
+                preparedStatement.setString(13, user.getFoodAllergies());
+                preparedStatement.setString(14, user.getGoal());
+                preparedStatement.setDouble(15, user.getTargetWeight());
+
                 // ... Set other parameters
 
                 preparedStatement.executeUpdate();
