@@ -2,26 +2,18 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.io.PrintWriter;
-import java.net.Socket;
 import java.util.ArrayList;
 import java.util.regex.Pattern;
 
-public class UserDetailsGUI extends JFrame {
+public class UserDetailsGUIEnhanced extends JFrame {
     private JTextField nameField, emailField, cityField, ageField, heightField, weightField, targetWeightField;
     private JComboBox<String> genderComboBox, ethnicityComboBox, medicalConditionsComboBox, dietTypeComboBox, allergiesComboBox, goalsComboBox;
     private JCheckBox[] vegetableCheckBoxes, fruitCheckBoxes, dairyCheckBoxes, meatAndEggsCheckBoxes, wholeGrainsCheckBoxes;
     private JPanel inputPanel;
     private JTextArea responseArea;
     private JScrollPane scrollPane;
-    
- // Socket variables
- 	Socket clientSocket;
- 	PrintWriter out;
 
-    public UserDetailsGUI() {
+    public UserDetailsGUIEnhanced() {
         setTitle("TailorFit");
         setLayout(new GridLayout(0, 2));
 
@@ -121,25 +113,6 @@ public class UserDetailsGUI extends JFrame {
         add(new JLabel("Enter Target Weight:"));
         targetWeightField = new JTextField();
         add(targetWeightField);
-        
-        // Create menu bar
-        JMenuBar menuBar = new JMenuBar();
-        setJMenuBar(menuBar);
-
-        // Create "File" menu
-        JMenu fileMenu = new JMenu("File");
-        menuBar.add(fileMenu);
-
-        // Create "Connect" menu item
-        JMenuItem connectMenuItem = new JMenuItem("Connect");
-        connectMenuItem.addActionListener(new ConnectActionListener());
-        fileMenu.add(connectMenuItem);
-
-        // Create "Close" menu item
-        JMenuItem closeMenuItem = new JMenuItem("Close");
-        closeMenuItem.addActionListener(new CloseActionListener());
-        fileMenu.add(closeMenuItem);
-        //
 
         // Initialize the JTextArea and JScrollPane
         responseArea = new JTextArea();
@@ -152,7 +125,7 @@ public class UserDetailsGUI extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
             	if (!validateInputs()) {
-                    JOptionPane.showMessageDialog(UserDetailsGUI.this, "Please fill in all required fields with valid information.", "Input Error", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(UserDetailsGUIEnhanced.this, "Please fill in all required fields with valid information.", "Input Error", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
                 getContentPane().removeAll();
@@ -170,7 +143,6 @@ public class UserDetailsGUI extends JFrame {
                         String response = apiHandler.sendPromptToGPT(user);
                         System.out.println(response);
                         responseArea.setText(response); // Update with the actual response
-                        sendUserToServer(user);
                     }
                 }).start();
 
@@ -201,20 +173,20 @@ public class UserDetailsGUI extends JFrame {
     private boolean validateInputs() {
         // Validate the name field
         if (nameField.getText().isEmpty() || !nameField.getText().matches("[A-Za-z ]+")) {
-            JOptionPane.showMessageDialog(UserDetailsGUI.this, "Please enter a valid name using only alphabets.", "Input Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(UserDetailsGUIEnhanced.this, "Please enter a valid name using only alphabets.", "Input Error", JOptionPane.ERROR_MESSAGE);
             return false;
         }
 
         // Validate the email field with basic regex pattern
         Pattern emailPattern = Pattern.compile("^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$");
         if (emailField.getText().isEmpty() || !emailPattern.matcher(emailField.getText()).matches()) {
-            JOptionPane.showMessageDialog(UserDetailsGUI.this, "Please enter a valid email address.", "Input Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(UserDetailsGUIEnhanced.this, "Please enter a valid email address.", "Input Error", JOptionPane.ERROR_MESSAGE);
             return false;
         }
 
         // Validate the city field
         if (cityField.getText().isEmpty() || !cityField.getText().matches("[A-Za-z ]+")) {
-            JOptionPane.showMessageDialog(UserDetailsGUI.this, "Please enter a valid city using only alphabets.", "Input Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(UserDetailsGUIEnhanced.this, "Please enter a valid city using only alphabets.", "Input Error", JOptionPane.ERROR_MESSAGE);
             return false;
         }
 
@@ -223,7 +195,7 @@ public class UserDetailsGUI extends JFrame {
             int age = Integer.parseInt(ageField.getText());
             if (age <= 0) throw new NumberFormatException();
         } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(UserDetailsGUI.this, "Please enter a valid age as a positive number.", "Input Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(UserDetailsGUIEnhanced.this, "Please enter a valid age as a positive number.", "Input Error", JOptionPane.ERROR_MESSAGE);
             return false;
         }
 
@@ -232,7 +204,7 @@ public class UserDetailsGUI extends JFrame {
             double weight = Double.parseDouble(weightField.getText());
             if (weight <= 0) throw new NumberFormatException();
         } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(UserDetailsGUI.this, "Please enter a valid weight as a positive number.", "Input Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(UserDetailsGUIEnhanced.this, "Please enter a valid weight as a positive number.", "Input Error", JOptionPane.ERROR_MESSAGE);
             return false;
         }
 
@@ -241,7 +213,7 @@ public class UserDetailsGUI extends JFrame {
             double targetWeight = Double.parseDouble(targetWeightField.getText());
             if (targetWeight <= 0) throw new NumberFormatException();
         } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(UserDetailsGUI.this, "Please enter a valid target weight as a positive number.", "Input Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(UserDetailsGUIEnhanced.this, "Please enter a valid target weight as a positive number.", "Input Error", JOptionPane.ERROR_MESSAGE);
             return false;
         }
         
@@ -250,7 +222,7 @@ public class UserDetailsGUI extends JFrame {
                 || !validateCheckboxSelection(dairyCheckBoxes)
                 || !validateCheckboxSelection(meatAndEggsCheckBoxes)
                 || !validateCheckboxSelection(wholeGrainsCheckBoxes)) {
-                JOptionPane.showMessageDialog(UserDetailsGUI.this, "Please select at least one option or 'None' for each category.", "Input Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(UserDetailsGUIEnhanced.this, "Please select at least one option or 'None' for each category.", "Input Error", JOptionPane.ERROR_MESSAGE);
                 return false;
             }
 
@@ -341,60 +313,7 @@ public class UserDetailsGUI extends JFrame {
     }
 
 
-    private class ConnectActionListener implements ActionListener {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-			// Set up client connection
-			try {
-				clientSocket = new Socket("localhost", 9898);
-				// Scanner serverInput = new Scanner(clientSocket.getInputStream());
-				out = new PrintWriter(clientSocket.getOutputStream(), true);
 
-				
-			} catch (Exception e1) {
-				throw new RuntimeException("Error connecting to the server.", e1);
-			}
-		}
-    }
-    
-    private class CloseActionListener implements ActionListener {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-			try {
-				if (clientSocket != null && !clientSocket.isClosed()) {
-					clientSocket.close();
-					// textArea.append("Connection closed\n");
-				}
-			} catch (IOException ex) {
-				ex.printStackTrace();
-				// textArea.append("Error closing connection: " + ex.getMessage() + "\n");
-			}finally {
-				// Dispose of the JFrame
-				dispose();
-			}
-        }
-    }
-    
-    private void sendUserToServer(User user) {
-        try {
-            // Ensure the PrintWriter is initialized
-            if (out != null) {
-                // Use ObjectOutputStream to send the User object over the network
-                ObjectOutputStream objectOutputStream = new ObjectOutputStream(clientSocket.getOutputStream());
-                objectOutputStream.writeObject(user);
-                objectOutputStream.flush();
-                
-                // Optionally, you can notify the user that the data has been sent successfully
-                JOptionPane.showMessageDialog(UserDetailsGUI.this, "User data sent successfully!");
-            } else {
-                // Handle the case where PrintWriter is not initialized
-                JOptionPane.showMessageDialog(UserDetailsGUI.this, "Error: PrintWriter not initialized.");
-            }
-        } catch (IOException ex) {
-            ex.printStackTrace();
-            JOptionPane.showMessageDialog(UserDetailsGUI.this, "Error sending user data: " + ex.getMessage());
-        }
-    }
 
 
     private void addCheckBoxes(JCheckBox[] checkBoxes) {
@@ -407,7 +326,7 @@ public class UserDetailsGUI extends JFrame {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                new UserDetailsGUI();
+                new UserDetailsGUIEnhanced();
             }
         });
     }
