@@ -17,12 +17,84 @@ public class UserDetailsGUI extends JFrame {
     private JTextArea responseArea;
     private JScrollPane scrollPane;
     
+    private JPanel initialPanel;
+    private JButton fetchButton, generateButton;
+    
  // Socket variables
  	Socket clientSocket;
  	PrintWriter out;
 
     public UserDetailsGUI() {
-        setTitle("TailorFit");
+    	setTitle("TailorFit");
+        createInitialScreen();
+    }
+    
+    private void createInitialScreen() {
+        initialPanel = new JPanel(new GridLayout(0, 1));
+        fetchButton = new JButton("Fetch Previous Recommendation");
+        generateButton = new JButton("Generate New Recommendation");
+
+        fetchButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                createFetchRecommendationScreen();
+            }
+        });
+
+        generateButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                setupNewRecommendationUI();
+            }
+        });
+
+        initialPanel.add(fetchButton);
+        initialPanel.add(generateButton);
+
+        add(initialPanel);
+
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        pack();
+        setLocationRelativeTo(null);
+        setVisible(true);
+    }
+    
+    private void createFetchRecommendationScreen() {
+        getContentPane().removeAll();
+        setLayout(new BorderLayout());
+
+        JPanel fetchPanel = new JPanel(new GridLayout(0, 2));
+        final JTextField emailField = new JTextField();
+        JButton submitButton = new JButton("Submit");
+
+        fetchPanel.add(new JLabel("Enter Email ID:"));
+        fetchPanel.add(emailField);
+        fetchPanel.add(submitButton);
+
+        submitButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                String email = emailField.getText();
+                if (checkEmailExists(email)) {
+                    // Fetch and display previous recommendation
+                    // This requires implementation based on your database
+                } else {
+                    JOptionPane.showMessageDialog(UserDetailsGUI.this, "Email not found. Please enter details for a new recommendation.");
+                    setupNewRecommendationUI();
+                }
+            }
+        });
+
+        add(fetchPanel, BorderLayout.CENTER);
+        revalidate();
+        repaint();
+    }
+    
+    private boolean checkEmailExists(String email) {
+        // Implement database check for email
+        // Return true if exists, false otherwise
+        return false; // Placeholder
+    }
+    
+    private void setupNewRecommendationUI() {
+        getContentPane().removeAll();
         setLayout(new GridLayout(0, 2));
 
         inputPanel = new JPanel(new GridLayout(0, 2));
@@ -184,6 +256,9 @@ public class UserDetailsGUI extends JFrame {
         pack();
         setLocationRelativeTo(null);
         setVisible(true);
+        
+        revalidate();
+        repaint();
     }
     
     private boolean validateCheckboxSelection(JCheckBox[] checkBoxes) {
