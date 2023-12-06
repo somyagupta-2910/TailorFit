@@ -33,6 +33,23 @@ public class UserDetailsGUI extends JFrame {
         initialPanel = new JPanel(new GridLayout(0, 1));
         fetchButton = new JButton("Fetch Previous Recommendation");
         generateButton = new JButton("Generate New Recommendation");
+        // Create menu bar
+        JMenuBar menuBar = new JMenuBar();
+        setJMenuBar(menuBar);
+
+        // Create "File" menu
+        JMenu fileMenu = new JMenu("File");
+        menuBar.add(fileMenu);
+
+        // Create "Connect" menu item
+        JMenuItem connectMenuItem = new JMenuItem("Connect");
+        connectMenuItem.addActionListener(new ConnectActionListener());
+        fileMenu.add(connectMenuItem);
+
+        // Create "Close" menu item
+        JMenuItem closeMenuItem = new JMenuItem("Close");
+        closeMenuItem.addActionListener(new CloseActionListener());
+        fileMenu.add(closeMenuItem);
 
         fetchButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -72,13 +89,17 @@ public class UserDetailsGUI extends JFrame {
         submitButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 String email = emailField.getText();
+                sendEmailToServer(email);
+                /*
                 if (checkEmailExists(email)) {
                     // Fetch and display previous recommendation
                     // This requires implementation based on your database
+                    sendEmailToServer(email);
                 } else {
                     JOptionPane.showMessageDialog(UserDetailsGUI.this, "Email not found. Please enter details for a new recommendation.");
                     setupNewRecommendationUI();
                 }
+                 */
             }
         });
 
@@ -193,25 +214,6 @@ public class UserDetailsGUI extends JFrame {
         add(new JLabel("Enter Target Weight:"));
         targetWeightField = new JTextField();
         add(targetWeightField);
-        
-        // Create menu bar
-        JMenuBar menuBar = new JMenuBar();
-        setJMenuBar(menuBar);
-
-        // Create "File" menu
-        JMenu fileMenu = new JMenu("File");
-        menuBar.add(fileMenu);
-
-        // Create "Connect" menu item
-        JMenuItem connectMenuItem = new JMenuItem("Connect");
-        connectMenuItem.addActionListener(new ConnectActionListener());
-        fileMenu.add(connectMenuItem);
-
-        // Create "Close" menu item
-        JMenuItem closeMenuItem = new JMenuItem("Close");
-        closeMenuItem.addActionListener(new CloseActionListener());
-        fileMenu.add(closeMenuItem);
-        //
 
         // Initialize the JTextArea and JScrollPane
         responseArea = new JTextArea();
@@ -238,10 +240,11 @@ public class UserDetailsGUI extends JFrame {
                     @Override
                     public void run() {
                         User user = createUser();
-                        OpenAIAPIHandler apiHandler = new OpenAIAPIHandler("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");
+                        OpenAIAPIHandler apiHandler = new OpenAIAPIHandler("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");
                         String response = apiHandler.sendPromptToGPT(user);
                         System.out.println(response);
                         responseArea.setText(response); // Update with the actual response
+                        user.setGPTResponse(response);
                         sendUserToServer(user);
                     }
                 }).start();
@@ -358,7 +361,8 @@ public class UserDetailsGUI extends JFrame {
                 selectedFruits,
                 selectedDairy,
                 selectedMeatAndEggs,
-                selectedWholeGrains
+                selectedWholeGrains,
+                null
         );
     }
 
@@ -468,6 +472,27 @@ public class UserDetailsGUI extends JFrame {
         } catch (IOException ex) {
             ex.printStackTrace();
             JOptionPane.showMessageDialog(UserDetailsGUI.this, "Error sending user data: " + ex.getMessage());
+        }
+    }
+
+    private void sendEmailToServer(String email) {
+        try {
+            // Ensure the PrintWriter is initialized
+            if (out != null) {
+                // Use ObjectOutputStream to send the User object over the network
+                ObjectOutputStream objectOutputStream = new ObjectOutputStream(clientSocket.getOutputStream());
+                objectOutputStream.writeObject(email);
+                objectOutputStream.flush();
+                
+                // Optionally, you can notify the user that the data has been sent successfully
+                JOptionPane.showMessageDialog(UserDetailsGUI.this, "User email sent successfully!");
+            } else {
+                // Handle the case where PrintWriter is not initialized
+                JOptionPane.showMessageDialog(UserDetailsGUI.this, "Error: PrintWriter not initialized.");
+            }
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(UserDetailsGUI.this, "Error sending user email: " + ex.getMessage());
         }
     }
 
