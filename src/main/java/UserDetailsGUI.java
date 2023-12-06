@@ -19,6 +19,7 @@ public class UserDetailsGUI extends JFrame {
     
     private JPanel initialPanel;
     private JButton fetchButton, generateButton;
+    // private JMenu fileMenu;
     
  // Socket variables
  	Socket clientSocket;
@@ -30,6 +31,7 @@ public class UserDetailsGUI extends JFrame {
     }
     
     private void createInitialScreen() {
+        getContentPane().removeAll();
         initialPanel = new JPanel(new GridLayout(0, 1));
         fetchButton = new JButton("Fetch Previous Recommendation");
         generateButton = new JButton("Generate New Recommendation");
@@ -49,12 +51,38 @@ public class UserDetailsGUI extends JFrame {
         initialPanel.add(fetchButton);
         initialPanel.add(generateButton);
 
+        JMenuBar menuBar = new JMenuBar();
+        setJMenuBar(menuBar);
+
+
+        // Add "Go back to initial screen" option to the file menu
+        JMenu fileMenu = new JMenu("File");
+        menuBar.add(fileMenu);
+
+        // Create "Connect" menu item
+        JMenuItem connectMenuItem = new JMenuItem("Connect");
+        connectMenuItem.addActionListener(new ConnectActionListener());
+        fileMenu.add(connectMenuItem);
+
+        // Create "Close" menu item
+        JMenuItem closeMenuItem = new JMenuItem("Close");
+        closeMenuItem.addActionListener(new CloseActionListener());
+        fileMenu.add(closeMenuItem);
+        //
+
+        // Create "Close" menu item
+        JMenuItem goBackMenuItem = new JMenuItem("Go back to initial screen");
+        goBackMenuItem.addActionListener(new GoBackActionListener());
+        fileMenu.add(goBackMenuItem);
+
         add(initialPanel);
 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         pack();
         setLocationRelativeTo(null);
         setVisible(true);
+        revalidate();
+        repaint();
     }
     
     private void createFetchRecommendationScreen() {
@@ -212,6 +240,11 @@ public class UserDetailsGUI extends JFrame {
         closeMenuItem.addActionListener(new CloseActionListener());
         fileMenu.add(closeMenuItem);
         //
+
+        // Create "Close" menu item
+        JMenuItem goBackMenuItem = new JMenuItem("Go back to initial screen");
+        goBackMenuItem.addActionListener(new GoBackActionListener());
+        fileMenu.add(goBackMenuItem);
 
         // Initialize the JTextArea and JScrollPane
         responseArea = new JTextArea();
@@ -447,6 +480,14 @@ public class UserDetailsGUI extends JFrame {
 				// Dispose of the JFrame
 				dispose();
 			}
+        }
+    }
+
+    private class GoBackActionListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            // Call createInitialScreen to go back to the initial screen
+            createInitialScreen();
         }
     }
     
