@@ -119,6 +119,8 @@ public class Server extends JFrame implements Runnable{
 
                     // Send the GPT response back to the client
                     clientOut.println(gptResponse);
+                    // Close the client socket's input stream
+                    clientSocket.shutdownInput();
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
