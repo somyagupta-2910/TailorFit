@@ -20,6 +20,7 @@ public class User implements Serializable{
     private String[] dairy;
     private String[] meatAndEggs;
     private String[] wholeGrains;
+    private String gptResponse;
 
     // Constructor
     public User(String firstName, String email, String city, String gender,
@@ -27,7 +28,7 @@ public class User implements Serializable{
             String medicalConditions, String dietType,
             String foodAllergies, String goal, double targetWeight,
             String[] vegetables, String[] fruits, String[] dairy,
-            String[] meatAndEggs, String[] wholeGrains) {
+            String[] meatAndEggs, String[] wholeGrains, String gptResponse) {
         this.firstName = firstName;
         this.email = email;
         this.city = city;
@@ -46,6 +47,7 @@ public class User implements Serializable{
         this.dairy = dairy;
         this.meatAndEggs = meatAndEggs;
         this.wholeGrains = wholeGrains;
+        this.gptResponse = gptResponse;
     }
 
     // Getters and setters
@@ -192,6 +194,13 @@ public class User implements Serializable{
     public void setWholeGrains(String[] wholeGrains) {
         this.wholeGrains = wholeGrains;
     }
+    public String getGPTResponse() {
+        return gptResponse;
+    }
+
+    public void setGPTResponse(String gptResponse) {
+        this.gptResponse = gptResponse;
+    }
 
     @Override
     public String toString() {
@@ -214,6 +223,7 @@ public class User implements Serializable{
                 ", dairy=" + Arrays.toString(dairy) +
                 ", meatAndEggs=" + Arrays.toString(meatAndEggs) +
                 ", wholeGrains=" + Arrays.toString(wholeGrains) +
+                ", gptResponse='" + gptResponse + '\'' +
                 '}';
     }
 

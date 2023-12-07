@@ -2,7 +2,10 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
@@ -19,6 +22,7 @@ public class UserDetailsGUI extends JFrame {
     
     private JPanel initialPanel;
     private JButton fetchButton, generateButton;
+    // private JMenu fileMenu;
     
  // Socket variables
  	Socket clientSocket;
@@ -30,6 +34,7 @@ public class UserDetailsGUI extends JFrame {
     }
     
     private void createInitialScreen() {
+        getContentPane().removeAll();
         initialPanel = new JPanel(new GridLayout(0, 1));
         fetchButton = new JButton("Fetch Previous Recommendation");
         generateButton = new JButton("Generate New Recommendation");
@@ -49,12 +54,38 @@ public class UserDetailsGUI extends JFrame {
         initialPanel.add(fetchButton);
         initialPanel.add(generateButton);
 
+        JMenuBar menuBar = new JMenuBar();
+        setJMenuBar(menuBar);
+
+
+        // Add "Go back to initial screen" option to the file menu
+        JMenu fileMenu = new JMenu("File");
+        menuBar.add(fileMenu);
+
+        // Create "Connect" menu item
+        JMenuItem connectMenuItem = new JMenuItem("Connect");
+        connectMenuItem.addActionListener(new ConnectActionListener());
+        fileMenu.add(connectMenuItem);
+
+        // Create "Close" menu item
+        JMenuItem closeMenuItem = new JMenuItem("Close");
+        closeMenuItem.addActionListener(new CloseActionListener());
+        fileMenu.add(closeMenuItem);
+        //
+
+        // Create "Close" menu item
+        JMenuItem goBackMenuItem = new JMenuItem("Go back to initial screen");
+        goBackMenuItem.addActionListener(new GoBackActionListener());
+        fileMenu.add(goBackMenuItem);
+
         add(initialPanel);
 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         pack();
         setLocationRelativeTo(null);
         setVisible(true);
+        revalidate();
+        repaint();
     }
     
     private void createFetchRecommendationScreen() {
@@ -72,6 +103,8 @@ public class UserDetailsGUI extends JFrame {
         submitButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 String email = emailField.getText();
+                sendEmailToServer(email);
+                /*
                 if (checkEmailExists(email)) {
                     // Fetch and display previous recommendation
                     // This requires implementation based on your database
@@ -79,6 +112,7 @@ public class UserDetailsGUI extends JFrame {
                     JOptionPane.showMessageDialog(UserDetailsGUI.this, "Email not found. Please enter details for a new recommendation.");
                     setupNewRecommendationUI();
                 }
+                */
             }
         });
 
@@ -213,6 +247,11 @@ public class UserDetailsGUI extends JFrame {
         fileMenu.add(closeMenuItem);
         //
 
+        // Create "Close" menu item
+        JMenuItem goBackMenuItem = new JMenuItem("Go back to initial screen");
+        goBackMenuItem.addActionListener(new GoBackActionListener());
+        fileMenu.add(goBackMenuItem);
+
         // Initialize the JTextArea and JScrollPane
         responseArea = new JTextArea();
         responseArea.setEditable(false); // Make it read-only
@@ -238,10 +277,10 @@ public class UserDetailsGUI extends JFrame {
                     @Override
                     public void run() {
                         User user = createUser();
-                        OpenAIAPIHandler apiHandler = new OpenAIAPIHandler("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");
+                        OpenAIAPIHandler apiHandler = new OpenAIAPIHandler("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");
                         String response = apiHandler.sendPromptToGPT(user);
                         System.out.println(response);
-                        responseArea.setText(response); // Update with the actual response
+                        //responseArea.setText(response); // Update with the actual response
                         sendUserToServer(user);
                     }
                 }).start();
@@ -358,7 +397,8 @@ public class UserDetailsGUI extends JFrame {
                 selectedFruits,
                 selectedDairy,
                 selectedMeatAndEggs,
-                selectedWholeGrains
+                selectedWholeGrains,
+                null
         );
     }
 
@@ -415,6 +455,44 @@ public class UserDetailsGUI extends JFrame {
         return finalCheckBoxes; // Return the final array
     }
 
+    private void sendEmailToServer(String email) {
+        try {
+            // Ensure the PrintWriter is initialized
+            if (out != null) {
+                // Use ObjectOutputStream to send the User object over the network
+                ObjectOutputStream objectOutputStream = new ObjectOutputStream(clientSocket.getOutputStream());
+                objectOutputStream.writeObject(email);
+                objectOutputStream.flush();
+                // Optionally, you can notify the user that the data has been sent successfully
+                JOptionPane.showMessageDialog(UserDetailsGUI.this, "User email sent successfully!");
+
+                // Use BufferedReader to receive the String response from the server
+                BufferedReader reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+                // Create a StringBuilder to store the multiline response
+                StringBuilder responseBuilder = new StringBuilder();
+                String line;
+
+                // Read lines until the end of the stream
+                while ((line = reader.readLine()) != null) {
+                    responseBuilder.append(line).append("\n");
+                }
+
+                // Get the final multiline response as a String
+                String gptResponse = responseBuilder.toString();
+
+                System.out.println("Received GPT response from server: " + gptResponse);
+                
+                
+            } else {
+                // Handle the case where PrintWriter is not initialized
+                JOptionPane.showMessageDialog(UserDetailsGUI.this, "Error: PrintWriter not initialized.");
+            }
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(UserDetailsGUI.this, "Error sending user email: " + ex.getMessage());
+        }
+    }
+
 
     private class ConnectActionListener implements ActionListener {
         @Override
@@ -447,6 +525,14 @@ public class UserDetailsGUI extends JFrame {
 				// Dispose of the JFrame
 				dispose();
 			}
+        }
+    }
+
+    private class GoBackActionListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            // Call createInitialScreen to go back to the initial screen
+            createInitialScreen();
         }
     }
     
@@ -488,4 +574,3 @@ public class UserDetailsGUI extends JFrame {
     }
 
 }
-

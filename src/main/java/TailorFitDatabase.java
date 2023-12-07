@@ -1,6 +1,5 @@
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 
@@ -65,7 +64,8 @@ public class TailorFitDatabase {
                 + "DietType VARCHAR(20),"
                 + "FoodAllergies VARCHAR(255),"
                 + "Goal VARCHAR(20),"
-                + "TargetWeight DOUBLE"
+                + "TargetWeight DOUBLE,"
+                + "GPTResponse VARCHAR(10000)"
                 + ")";
 
         String createGoalsTableSQL = "CREATE TABLE IF NOT EXISTS Goals ("
@@ -91,40 +91,6 @@ public class TailorFitDatabase {
         }
     }
 
-    // Function to create a new user
-    public static void createUser(String[] userData) {
-        // Ensure the userData array has the required length
-        if (userData.length != 15) { // Adjust the length based on the number of fields
-            System.out.println("Invalid number of elements in the userData array.");
-            return;
-        }
-
-        try (Connection connection = DriverManager.getConnection(JDBC_URL, USERNAME, PASSWORD)) {
-            // SQL statement to insert a new user into the Users table
-            String insertUserSQL = "INSERT INTO Users (FirstName, LastName, Email, City, Gender, " +
-                    "Ethnicity, Age, Height, CurrentWeight, MedicalConditions, FoodOptions, " +
-                    "DietType, FoodAllergies, Goal, TargetWeight) " +
-                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-
-            try (PreparedStatement preparedStatement = connection.prepareStatement(insertUserSQL)) {
-                // Set parameters from the array
-                for (int i = 0; i < userData.length; i++) {
-                    preparedStatement.setString(i + 1, userData[i]);
-                }
-
-                // Execute the update
-                int rowsAffected = preparedStatement.executeUpdate();
-
-                if (rowsAffected > 0) {
-                    System.out.println("User created successfully!");
-                } else {
-                    System.out.println("Failed to create user.");
-                }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
 }
 
 /*
