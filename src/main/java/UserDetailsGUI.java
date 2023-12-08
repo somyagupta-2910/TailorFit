@@ -130,6 +130,30 @@ public class UserDetailsGUI extends JFrame {
     private void setupNewRecommendationUI() {
         getContentPane().removeAll();
         setLayout(new GridLayout(0, 2));
+        
+        // Create menu bar
+        JMenuBar menuBar = new JMenuBar();
+        setJMenuBar(menuBar);
+
+        // Create "File" menu
+        JMenu fileMenu = new JMenu("File");
+        menuBar.add(fileMenu);
+
+        // Create "Connect" menu item
+        JMenuItem connectMenuItem = new JMenuItem("Connect");
+        connectMenuItem.addActionListener(new ConnectActionListener());
+        fileMenu.add(connectMenuItem);
+
+        // Create "Close" menu item
+        JMenuItem closeMenuItem = new JMenuItem("Close");
+        closeMenuItem.addActionListener(new CloseActionListener());
+        fileMenu.add(closeMenuItem);
+        //
+
+        // Create "Close" menu item
+        JMenuItem goBackMenuItem = new JMenuItem("Go back to initial screen");
+        goBackMenuItem.addActionListener(new GoBackActionListener());
+        fileMenu.add(goBackMenuItem);
 
         inputPanel = new JPanel(new GridLayout(0, 2));
 
@@ -151,7 +175,7 @@ public class UserDetailsGUI extends JFrame {
         add(genderComboBox);
 
         add(new JLabel("Ethnicity:"));
-        String[] ethnicities = {"Caucasian", "African American", "Asian", "Hispanic", "Other"};
+        String[] ethnicities = {"African American", "Asian", "Caucasian", "Hispanic", "Other"};
         ethnicityComboBox = new JComboBox<>(ethnicities);
         add(ethnicityComboBox);
 
@@ -159,16 +183,16 @@ public class UserDetailsGUI extends JFrame {
         ageField = new JTextField();
         add(ageField);
 
-        add(new JLabel("Height:"));
+        add(new JLabel("Height (in cm):"));
         heightField = new JTextField();
         add(heightField);
 
-        add(new JLabel("Current Weight:"));
+        add(new JLabel("Current Weight (in lb):"));
         weightField = new JTextField();
         add(weightField);
 
         add(new JLabel("Any existing medical conditions or physical limitations:"));
-        String[] medicalConditions = {"Cardiovascular Conditions", "Respiratory Conditions", "Joint or Muscle Issues", "Other (Please Specify)", "None"};
+        String[] medicalConditions = {"Cardiovascular Conditions", "Respiratory Conditions", "Joint or Muscle Issues", "None"};
         medicalConditionsComboBox = new JComboBox<>(medicalConditions);
         add(medicalConditionsComboBox);
 
@@ -214,43 +238,22 @@ public class UserDetailsGUI extends JFrame {
         addCheckBoxes(wholeGrainsCheckBoxes);
 
         add(new JSeparator());
+        add(new JSeparator());
         add(new JLabel("Any Food Allergies:"));
-        String[] allergies = {"Seafood", "Gluten", "Dairy", "Nuts", "Other (Please Specify)", "None"};
+        String[] allergies = {"Seafood", "Gluten", "Dairy", "Nuts", "None"};
         allergiesComboBox = new JComboBox<>(allergies);
         add(allergiesComboBox);
-
+        
+        add(new JSeparator());
         add(new JLabel("Enter Goal:"));
         String[] goals = {"Lose Weight", "Gain Muscle"};
         goalsComboBox = new JComboBox<>(goals);
         add(goalsComboBox);
-
-        add(new JLabel("Enter Target Weight:"));
+        
+        add(new JSeparator());
+        add(new JLabel("Enter Target Weight (in lb):"));
         targetWeightField = new JTextField();
         add(targetWeightField);
-        
-        // Create menu bar
-        JMenuBar menuBar = new JMenuBar();
-        setJMenuBar(menuBar);
-
-        // Create "File" menu
-        JMenu fileMenu = new JMenu("File");
-        menuBar.add(fileMenu);
-
-        // Create "Connect" menu item
-        JMenuItem connectMenuItem = new JMenuItem("Connect");
-        connectMenuItem.addActionListener(new ConnectActionListener());
-        fileMenu.add(connectMenuItem);
-
-        // Create "Close" menu item
-        JMenuItem closeMenuItem = new JMenuItem("Close");
-        closeMenuItem.addActionListener(new CloseActionListener());
-        fileMenu.add(closeMenuItem);
-        //
-
-        // Create "Close" menu item
-        JMenuItem goBackMenuItem = new JMenuItem("Go back to initial screen");
-        goBackMenuItem.addActionListener(new GoBackActionListener());
-        fileMenu.add(goBackMenuItem);
 
         // Initialize the JTextArea and JScrollPane
         responseArea = new JTextArea();
@@ -258,6 +261,7 @@ public class UserDetailsGUI extends JFrame {
         scrollPane = new JScrollPane(responseArea);
         scrollPane.setPreferredSize(new Dimension(800, 600));
 
+        add(new JSeparator());
         JButton submitButton = new JButton("Submit");
         submitButton.addActionListener(new ActionListener() {
             @Override
@@ -454,6 +458,28 @@ public class UserDetailsGUI extends JFrame {
 
         return finalCheckBoxes; // Return the final array
     }
+    
+    
+    private void displayGPTResponse(String gptResponse) {
+        // Clear current content
+        getContentPane().removeAll();
+        setLayout(new BorderLayout());
+
+        // Create a JTextArea for the response
+        JTextArea responseTextArea = new JTextArea(20, 50); // Set preferred size
+        responseTextArea.setText(gptResponse);
+        responseTextArea.setWrapStyleWord(true);
+        responseTextArea.setLineWrap(true);
+        responseTextArea.setEditable(false);
+
+        // Add JTextArea to JScrollPane for scrollability
+        JScrollPane scrollPane = new JScrollPane(responseTextArea);
+        add(scrollPane, BorderLayout.CENTER);
+
+        // Refresh the frame to display the new components
+        revalidate();
+        repaint();
+    }
 
     private void sendEmailToServer(String email) {
         try {
@@ -481,6 +507,9 @@ public class UserDetailsGUI extends JFrame {
                 String gptResponse = responseBuilder.toString();
 
                 System.out.println("Received GPT response from server: " + gptResponse);
+                
+                // Display the GPT response in the GUI
+                displayGPTResponse(gptResponse);
                 
                 
             } else {
