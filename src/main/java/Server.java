@@ -119,8 +119,10 @@ public class Server extends JFrame implements Runnable{
 
                     // Send the GPT response back to the client
                     clientOut.println(gptResponse);
-                    // Close the client socket's input stream
-                    clientSocket.shutdownInput();
+
+                    clientOut.flush();
+                    clientSocket.shutdownOutput(); // Signal end of data transmission
+                    
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
@@ -194,7 +196,7 @@ public class Server extends JFrame implements Runnable{
                 if (resultSet.next()) {
                     // Retrieve the GPTResponse from the result set
                     gptResponse = resultSet.getString("GPTResponse");
-                    System.out.println("GPTResponse for user with email " + email + ": " + gptResponse);
+                    System.out.println("GPTResponse for user with email " + email + ": \n" + gptResponse);
                 } else {
                     System.out.println("No user found with email: " + email);
                     gptResponse = "No user found with email: " + email;
