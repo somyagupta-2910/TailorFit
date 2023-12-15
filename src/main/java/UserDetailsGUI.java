@@ -5,7 +5,6 @@ import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
@@ -281,7 +280,7 @@ public class UserDetailsGUI extends JFrame {
                     @Override
                     public void run() {
                         User user = createUser();
-                        OpenAIAPIHandler apiHandler = new OpenAIAPIHandler("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");
+                        OpenAIAPIHandler apiHandler = new OpenAIAPIHandler("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");
                         String response = apiHandler.sendPromptToGPT(user);
                         System.out.println(response);
                         responseArea.setText(response); // Update with the actual response
@@ -486,10 +485,12 @@ public class UserDetailsGUI extends JFrame {
         try {
             // Ensure the PrintWriter is initialized
             if (out != null) {
+                
                 // Use ObjectOutputStream to send the User object over the network
                 ObjectOutputStream objectOutputStream = new ObjectOutputStream(clientSocket.getOutputStream());
                 objectOutputStream.writeObject(email);
                 objectOutputStream.flush();
+                
                 // Optionally, you can notify the user that the data has been sent successfully
                 JOptionPane.showMessageDialog(UserDetailsGUI.this, "User email sent successfully!");
 
@@ -499,8 +500,12 @@ public class UserDetailsGUI extends JFrame {
                 StringBuilder responseBuilder = new StringBuilder();
                 String line;
 
-                // Read lines until the end of the stream
+                // Read lines until the end of the stream or until the delimiter is encountered
                 while ((line = reader.readLine()) != null) {
+                    System.out.println("Received line from server: " + line);
+                    if ("END_OF_RESPONSE".equals(line)) {
+                        break; // Exit the loop when the delimiter is encountered
+                    }
                     responseBuilder.append(line).append("\n");
                 }
 
