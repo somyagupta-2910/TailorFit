@@ -1,4 +1,7 @@
 import javax.swing.*;
+
+import org.apache.http.auth.KerberosCredentials;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -22,12 +25,10 @@ public class UserDetailsGUI extends JFrame {
     
     private JPanel initialPanel;
     private JButton fetchButton, generateButton;
-    // private JMenu fileMenu;
     
  // Socket variables
  	Socket clientSocket;
  	PrintWriter out;
-
     public UserDetailsGUI() {
     	setTitle("TailorFit");
         createInitialScreen();
@@ -35,7 +36,10 @@ public class UserDetailsGUI extends JFrame {
     
     private void createInitialScreen() {
         getContentPane().removeAll();
+
         initialPanel = new JPanel(new GridLayout(0, 1));
+        initialPanel.setBackground(Color.decode("#3559E0"));
+
         fetchButton = new JButton("Fetch Previous Recommendation");
         generateButton = new JButton("Generate New Recommendation");
 
@@ -90,15 +94,25 @@ public class UserDetailsGUI extends JFrame {
     
     private void createFetchRecommendationScreen() {
         getContentPane().removeAll();
+
         setLayout(new BorderLayout());
 
         JPanel fetchPanel = new JPanel(new GridLayout(0, 2));
         final JTextField emailField = new JTextField();
         JButton submitButton = new JButton("Submit");
 
-        fetchPanel.add(new JLabel("Enter Email ID:"));
+        JLabel emailID=new JLabel("Enter Email ID:");
+        emailID.setOpaque(true);
+        emailID.setBackground(Color.decode("#64CCC5"));
+        emailID.setForeground(Color.decode("#DAFFFB"));
+        emailID.setFont(new Font("Arial", Font.BOLD, 14));
+        fetchPanel.add(emailID);
         fetchPanel.add(emailField);
         fetchPanel.add(submitButton);
+        submitButton.setOpaque(true);
+        submitButton.setBorderPainted(false); // Needed for some look and feels like Nimbus
+        submitButton.setBackground(Color.decode("#176B87")); // Choose the color you want
+        submitButton.setForeground(Color.WHITE); 
 
         submitButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -130,7 +144,8 @@ public class UserDetailsGUI extends JFrame {
     private void setupNewRecommendationUI() {
         getContentPane().removeAll();
         setLayout(new GridLayout(0, 2));
-        
+        JSeparator separator = new JSeparator();
+        separator.setVisible(false);
         // Create menu bar
         JMenuBar menuBar = new JMenuBar();
         setJMenuBar(menuBar);
@@ -157,101 +172,272 @@ public class UserDetailsGUI extends JFrame {
 
         inputPanel = new JPanel(new GridLayout(0, 2));
 
-        add(new JLabel("Name:"));
+        //Name
+        JLabel nameLabel =new JLabel("Name:");
+        nameLabel.setOpaque(true);
+        nameLabel.setForeground(Color.decode("#DAFFFB")); 
+        nameLabel.setBackground(Color.decode("#04364A"));
+        nameLabel.setFont(new Font("Arial", Font.BOLD, 14));
+        nameLabel.setHorizontalAlignment(JLabel.CENTER);
+        add(nameLabel);
         nameField = new JTextField();
         add(nameField);
-
-        add(new JLabel("Email ID:"));
+        
+        //Email
+        JLabel emailLabel= new JLabel("Email ID:");
+        emailLabel.setOpaque(true);
+        emailLabel.setForeground(Color.decode("#D04364A")); 
+        emailLabel.setBackground(Color.decode("#DAFFFB"));
+        emailLabel.setFont(new Font("Arial", Font.BOLD, 14));
+        emailLabel.setHorizontalAlignment(JLabel.CENTER);
+        add(emailLabel);
         emailField = new JTextField();
         add(emailField);
 
-        add(new JLabel("City:"));
+        //City
+        JLabel cityLabel=new JLabel("City:");
+        cityLabel.setOpaque(true);
+        cityLabel.setForeground(Color.decode("#DAFFFB")); 
+        cityLabel.setBackground(Color.decode("#04364A"));
+        cityLabel.setFont(new Font("Arial", Font.BOLD, 14));
+        cityLabel.setHorizontalAlignment(JLabel.CENTER);
+        add(cityLabel);
         cityField = new JTextField();
         add(cityField);
 
-        add(new JLabel("Gender:"));
+        //Gender
+        JLabel genderLabel=new JLabel("Gender:");
+        genderLabel.setOpaque(true);
+        genderLabel.setForeground(Color.decode("#04364A"));
+        genderLabel.setBackground(Color.decode("#DAFFFB"));
+        genderLabel.setFont(new Font("Arial", Font.BOLD, 14));
+        genderLabel.setHorizontalAlignment(JLabel.CENTER);
+        add(genderLabel);
         String[] genders = {"Male", "Female", "Transgender", "Non-Binary", "Prefer not to respond"};
         genderComboBox = new JComboBox<>(genders);
         add(genderComboBox);
+        add(new JSeparator());
+        add(new JSeparator());
 
-        add(new JLabel("Ethnicity:"));
+        //Ethnicity
+        JLabel ethnic=new JLabel("Ethnicity:");
+        ethnic.setOpaque(true);
+        ethnic.setForeground(Color.decode("#DAFFFB"));
+        ethnic.setBackground(Color.decode("#04364A"));
+        ethnic.setFont(new Font("Arial", Font.BOLD, 14));
+        ethnic.setHorizontalAlignment(JLabel.CENTER);
+        add(ethnic);
         String[] ethnicities = {"African American", "Asian", "Caucasian", "Hispanic", "Other"};
         ethnicityComboBox = new JComboBox<>(ethnicities);
         add(ethnicityComboBox);
 
-        add(new JLabel("Age:"));
+
+        //Age
+        JLabel age=new JLabel("Age:");
+        age.setOpaque(true);
+        age.setForeground(Color.decode("#04364A"));
+        age.setBackground(Color.decode("#DAFFFB"));
+        age.setFont(new Font("Arial", Font.BOLD, 14));
+        age.setHorizontalAlignment(JLabel.CENTER);
+        add(age);
         ageField = new JTextField();
         add(ageField);
 
-        add(new JLabel("Height (in cm):"));
+        //Height
+        JLabel height=new JLabel("Height (in cm):");
+        height.setOpaque(true);
+        height.setForeground(Color.decode("#DAFFFB"));
+        height.setBackground(Color.decode("#04364A"));
+        height.setFont(new Font("Arial", Font.BOLD, 14));
+        height.setHorizontalAlignment(JLabel.CENTER);
+        add(height);
         heightField = new JTextField();
         add(heightField);
 
-        add(new JLabel("Current Weight (in lb):"));
+        //Weight
+        JLabel weight=new JLabel("Current Weight (in lb):");
+        weight.setOpaque(true);
+        weight.setForeground(Color.decode("#04364A"));
+        weight.setBackground(Color.decode("#DAFFFB"));
+        weight.setFont(new Font("Arial", Font.BOLD, 14));
+        weight.setHorizontalAlignment(JLabel.CENTER);
+        add(weight);
         weightField = new JTextField();
         add(weightField);
 
-        add(new JLabel("Any existing medical conditions or physical limitations:"));
+        //Any conditions
+        JLabel condition=new JLabel("Any existing medical conditions or physical limitations:");
+        condition.setOpaque(true);
+        condition.setForeground(Color.decode("#DAFFFB"));
+        condition.setBackground(Color.decode("#04364A"));
+        condition.setFont(new Font("Arial", Font.BOLD, 14));
+        condition.setHorizontalAlignment(JLabel.CENTER);
+        add(condition);
+
         String[] medicalConditions = {"Cardiovascular Conditions", "Respiratory Conditions", "Joint or Muscle Issues", "None"};
         medicalConditionsComboBox = new JComboBox<>(medicalConditions);
         add(medicalConditionsComboBox);
+        add(new JSeparator());
+        add(new JSeparator());
 
-        add(new JLabel("Select Diet type:"));
+
+        //Diet Type
+        JLabel diet=new JLabel("Select Diet type:");
+        diet.setOpaque(true);
+        diet.setForeground(Color.decode("#04364A"));
+        diet.setBackground(Color.decode("#DAFFFB"));
+        diet.setFont(new Font("Arial", Font.BOLD, 14));
+        diet.setHorizontalAlignment(JLabel.CENTER);
+        add(diet);
         String[] dietTypes = {"Vegan", "Omnivore", "Pescatarian", "Vegetarian"};
         dietTypeComboBox = new JComboBox<>(dietTypes);
         add(dietTypeComboBox);
-
         // Add here
         add(new JSeparator());
         add(new JSeparator());
-        add(new JLabel("Select Vegetables:"));
+
+        //Vegetables
+        JLabel veggies=new JLabel("Select Vegetables:");
+        veggies.setOpaque(true);
+        veggies.setForeground(Color.decode("#DAFFFB"));
+        veggies.setBackground(Color.decode("#04364A"));
+        veggies.setFont(new Font("Arial", Font.BOLD, 14));
+        add(veggies);
+        add(new JLabel());
         String[] vegetables = {"Carrot", "Cauliflower", "Beans", "Potato", "Cabbage", "Spinach", "Tomato", "Onion", "Eggplant", "Bell Pepper"};
         vegetableCheckBoxes = createCheckBoxes(vegetables, "None");
         addCheckBoxes(vegetableCheckBoxes);
+        for (JCheckBox checkBox : vegetableCheckBoxes) {
+            checkBox.setOpaque(true);
+            checkBox.setBackground(Color.decode("#DAFFFB")); // Set to your desired color
+        }
 
+        //Dummy
+        JLabel f=new JLabel();
+        f.setOpaque(true);
+        f.setBackground(Color.decode("#DAFFFB"));
+        add(f);
         add(new JSeparator());
         add(new JSeparator());
-        add(new JLabel("Select Fruits:"));
+
+
+        //Fruits
+        JLabel fru=new JLabel("Select Fruits:");
+        fru.setOpaque(true);
+        fru.setForeground(Color.decode("#DAFFFB"));
+        fru.setBackground(Color.decode("#04364A"));
+        fru.setFont(new Font("Arial", Font.BOLD, 14));
+        add(fru);
+        add(new JLabel());
         String[] fruits = {"Orange", "Apple", "Banana", "Grape", "Mango", "Pineapple", "Papaya"};
         fruitCheckBoxes = createCheckBoxes(fruits, "None");
         addCheckBoxes(fruitCheckBoxes);
+        for (JCheckBox checkBox : fruitCheckBoxes) {
+            checkBox.setOpaque(true);
+            checkBox.setBackground(Color.decode("#DAFFFB")); // Set to your desired color
+        }
 
         add(new JSeparator());
         add(new JSeparator());
-        add(new JLabel("Select Dairy:"));
+
+
+
+        //Dairy
+        JLabel dairyLabel=new JLabel("Select Dairy:");
+        dairyLabel.setOpaque(true);
+        dairyLabel.setForeground(Color.decode("#DAFFFB"));
+        dairyLabel.setBackground(Color.decode("#04364A"));
+        dairyLabel.setFont(new Font("Arial", Font.BOLD, 14));
+        add(dairyLabel);
+        add(new JLabel());
         String[] dairy = {"Cheddar Cheese", "Cottage Cheese", "Almond Milk", "Milk", "Coconut Milk", "Yogurt"};
         dairyCheckBoxes = createCheckBoxes(dairy, "None");
         addCheckBoxes(dairyCheckBoxes);
+        for (JCheckBox checkBox : dairyCheckBoxes) {
+            checkBox.setOpaque(true);
+            checkBox.setBackground(Color.decode("#DAFFFB")); // Set to your desired color
+        }
+        add(new JLabel());
+        add(new JSeparator());
+        add(new JSeparator());
 
-        add(new JSeparator());
-        add(new JSeparator());
-        add(new JLabel("Select Meat & Eggs:"));
+
+        //Meat
+        JLabel meatLabel=new JLabel("Select Meat & Eggs:");
+        meatLabel.setOpaque(true);
+        meatLabel.setForeground(Color.decode("#DAFFFB"));
+        meatLabel.setBackground(Color.decode("#04364A"));
+        meatLabel.setFont(new Font("Arial", Font.BOLD, 14));
+        add(meatLabel);
+        add(new JLabel());
         String[] meatAndEggs = {"Chicken", "Mutton", "Seafood", "Turkey", "Beef", "Eggs"};
         meatAndEggsCheckBoxes = createCheckBoxes(meatAndEggs, "None");
         addCheckBoxes(meatAndEggsCheckBoxes);
+        for (JCheckBox checkBox : meatAndEggsCheckBoxes) {
+            checkBox.setOpaque(true);
+            checkBox.setBackground(Color.decode("#DAFFFB")); // Set to your desired color
+        }
+        add(new JLabel());
+        add(new JSeparator());
+        add(new JSeparator());
 
-        add(new JSeparator());
-        add(new JSeparator());
-        add(new JLabel("Select Whole Grains:"));
+
+        //Grains
+        JLabel grainLabel=new JLabel("Select Whole Grains:");
+        grainLabel.setOpaque(true);
+        grainLabel.setForeground(Color.decode("#DAFFFB"));
+        grainLabel.setBackground(Color.decode("#04364A"));
+        grainLabel.setFont(new Font("Arial", Font.BOLD, 14));
+        add(grainLabel);
+        add(new JLabel());
         String[] wholeGrains = {"Millet", "Oats", "Rice", "Quinoa"};
         wholeGrainsCheckBoxes = createCheckBoxes(wholeGrains, "None");
         addCheckBoxes(wholeGrainsCheckBoxes);
+        for (JCheckBox checkBox : wholeGrainsCheckBoxes) {
+            checkBox.setOpaque(true);
+            checkBox.setBackground(Color.decode("#DAFFFB")); // Set to your desired color
+        }
+        add(new JLabel());
+        add(new JSeparator());
+        add(new JSeparator());
 
-        add(new JSeparator());
-        add(new JSeparator());
-        add(new JLabel("Any Food Allergies:"));
+        //Allergies
+        JLabel allergyLabel=new JLabel("Any Food Allergies:");
+        allergyLabel.setOpaque(true);
+        allergyLabel.setForeground(Color.decode("#DAFFFB"));
+        allergyLabel.setBackground(Color.decode("#04364A"));
+        allergyLabel.setFont(new Font("Arial", Font.BOLD, 14));
+        add(allergyLabel);
         String[] allergies = {"Seafood", "Gluten", "Dairy", "Nuts", "None"};
         allergiesComboBox = new JComboBox<>(allergies);
         add(allergiesComboBox);
-        
+        add(new JSeparator(SwingConstants.HORIZONTAL));
         add(new JSeparator());
-        add(new JLabel("Enter Goal:"));
+
+        //Goal
+        JLabel goalLabel=new JLabel("Enter Goal:");
+        goalLabel.setOpaque(true);
+        goalLabel.setForeground(Color.decode("#04364A"));
+        goalLabel.setBackground(Color.decode("#DAFFFB"));
+        goalLabel.setFont(new Font("Arial", Font.BOLD, 14));
+        add(goalLabel);
         String[] goals = {"Lose Weight", "Gain Muscle"};
         goalsComboBox = new JComboBox<>(goals);
         add(goalsComboBox);
-        
+        add(new JSeparator(SwingConstants.HORIZONTAL));
         add(new JSeparator());
-        add(new JLabel("Enter Target Weight (in lb):"));
+
+
+        //Target Weight
+
+        JLabel targetWeight=new JLabel("Enter Target Weight (in lb):");
+        targetWeight.setOpaque(true);
+       targetWeight.setForeground(Color.decode("#DAFFFB"));
+        targetWeight.setBackground(Color.decode("#04364A"));
+        targetWeight.setFont(new Font("Arial", Font.BOLD, 14));
+        add(targetWeight);
+
+        
         targetWeightField = new JTextField();
         add(targetWeightField);
 
@@ -262,7 +448,15 @@ public class UserDetailsGUI extends JFrame {
         scrollPane.setPreferredSize(new Dimension(800, 600));
 
         add(new JSeparator());
+        add(new JSeparator(SwingConstants.HORIZONTAL));
+        add(new JLabel(""));
         JButton submitButton = new JButton("Submit");
+        submitButton.setOpaque(true);
+        submitButton.setBorderPainted(false); // Needed for some look and feels like Nimbus
+        submitButton.setBackground(Color.decode("#176B87")); // Choose the color you want
+        submitButton.setForeground(Color.WHITE); 
+
+
         submitButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -292,10 +486,11 @@ public class UserDetailsGUI extends JFrame {
 
             }
         });
+
         inputPanel.add(submitButton);
 
         add(inputPanel, BorderLayout.CENTER);
-
+        
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         pack();
         setLocationRelativeTo(null);
@@ -464,6 +659,8 @@ public class UserDetailsGUI extends JFrame {
     private void displayGPTResponse(String gptResponse) {
         // Clear current content
         getContentPane().removeAll();
+        getContentPane().setBackground(Color.YELLOW); // Choose your desired color
+
         setLayout(new BorderLayout());
 
         // Create a JTextArea for the response
