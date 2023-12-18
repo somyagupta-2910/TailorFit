@@ -19,6 +19,7 @@ public class OpenAIAPIHandler {
         this.apiKey = apiKey;
     }
     
+    // Helper method to join an array of strings into a comma-separated string.
     public static String joinArrayToString(String[] arr) {
         StringBuilder sb = new StringBuilder();
 
@@ -32,15 +33,17 @@ public class OpenAIAPIHandler {
         return sb.toString();
     }
 
+    // Method to send a prompt to the OpenAI GPT-3 API and retrieve a response.
     public String sendPromptToGPT(User user) {
         String prompt = buildPrompt(user);
-        System.out.println("Prompt that is sent: ");
-        System.out.println(prompt);
+        //System.out.println("Prompt that is sent: ");
+        //System.out.println(prompt);
         return sendPostRequest(prompt);
     }
 
+    // Build a prompt string using user information and specific instructions.
     private String buildPrompt(User user) {
-        return "Task and Persona: I want you to act as a personal trainer. I will provide you with all the information needed about a user looking to become fitter, stronger and healthier through physical training, and your role is to devise the best plan for that person depending on their current fitness level, goals and lifestyle habits. You should use your knowledge of exercise science, nutrition advice, and other relevant factors in order to create a personalized fitness plan suitable for them. \n"
+        return "Task and Persona: I want you to act as a personal trainer. I will provide you with all the information needed about a user looking to become fitter, stronger and healthier through physical training, and your task is to devise a comprehensive fitness plan that includes a 7-day extensive workout plan and a 7-day meal plan, tailored to the User's goals, characteristics, and dietary restrictions. You should use your knowledge of exercise science, nutrition advice, and other relevant factors in order to create a personalized fitness plan suitable for them.\n"
                 + "\n"
                 + "User Info:\n"
                 + "Name: " + user.getFirstName() + "\n"
@@ -48,40 +51,37 @@ public class OpenAIAPIHandler {
                 + "Gender: " + user.getGender() + "\n"
                 + "Country: " + user.getEthnicity() + "\n"
                 + "Age: " + user.getAge() + "\n"
-                + "Height: " + user.getHeight() + "cm" + "\n"
-                + "Current Weight: " + user.getCurrentWeight() + "lb" + "\n"
+                + "Height: " + user.getHeight() + " cm" + "\n"
+                + "Current Weight: " + user.getCurrentWeight() + " lb" + "\n"
                 + "Existing medical conditions or physical limitations: " + user.getMedicalConditions() + "\n"
                 + "Diet type: " + user.getDietType() + "\n"
                 + "Food allergies: " + user.getFoodAllergies() + "\n"
-                + "Diet Elements to be included:"
-                + "\n"
+                + "Diet Elements to be included:\n"
                 + "Vegetables: " + joinArrayToString(user.getVegetables()) + "\n"
                 + "Meat: " + joinArrayToString(user.getMeatAndEggs())+ "\n"
                 + "Fruits: " + joinArrayToString(user.getFruits()) + "\n"
                 + "Whole Grains: " + joinArrayToString(user.getWholeGrains()) + "\n"
                 + "Dairy: " + joinArrayToString(user.getDairy()) + "\n"
                 + "Goal: " + user.getGoal() + "\n"
-                + "Target Weight: " + user.getTargetWeight() + "cm" + "\n"
+                + "Target Weight: " + user.getTargetWeight() + " lb" + "\n"
                 + "\n"
                 + "Output format:\n"
-                + "Current BMI\n"
-                + "Ideal BMI based on Target Weight\n"
-                + "Number of Calories needed to be burnt to achieve the target weight\n"
+                + "Current BMI: [Provide the current BMI without showing any calculations]\n"
+                + "Ideal BMI based on Target Weight: [Provide the ideal BMI based on the target weight without showing any calculations]\n"
+                + "Number of Calories to eat everyday to achieve the target weight: [Show the number of calories]\n"
                 + "\n"
-                + "Number of Calories to consume everyday to achieve the target weight\n"
+                + "7-day Extensive Workout plan:\n"
+                + "[Provide a detailed workout plan for each day, considering the User's goal, current fitness level, and any health conditions]\n"
                 + "\n"
-                + "7-day Extensive Workout plan \n"
-                + "- Give a detailed workout plan based on the given goal and individual's characteristics. Be mindful of the person's health conditions.\n"
-                + "\n"
-                + "7-day 3 meals plan \n"
-                + "- Give a detailed and a healthy meal plan based on the individual's goal and characteristics\n"
-                + "- give a macros breakdown (Protein, Carbs, and Fat) and calories count of each meal.\n"
-                + "- The diet plan should be based on the person's country of birth and where the person currently lives.\n"
-                + "- Also, make sure to check on the person's existing medical conditions and food allergies and give meal plan recommendations accordingly.\n"
-                + "\n"
-                + "NOTE: Do not provide any other message than the ones asked in the Output format";
+                + "7-day Meal plan: \n"
+                + "[Provide a detailed and healthy meal plan for each day, considering the User's goal, characteristics, dietary preferences, and restrictions]\n"
+                + "- Include a macro breakdown (Protein, Carbs, and Fat) and calorie count for each meal.\n"
+                + "- Tailor the meal plan based on the User's country of birth and current residence.\n"
+                + "- Take into account the User's existing medical conditions and food allergies when recommending meal plan options.\n"
+                + "NOTE: Do not provide any other message than the ones asked in the Output format. Do not send this prompt itself as a response.";
     }
 
+    // Send a POST request to the OpenAI API and retrieve the response.
     private String sendPostRequest(String prompt) {
         HttpClient httpClient = HttpClients.createDefault();
         HttpPost postRequest = new HttpPost(apiEndpoint);
@@ -90,13 +90,16 @@ public class OpenAIAPIHandler {
             postRequest.setHeader("Authorization", "Bearer " + apiKey);
             postRequest.setHeader("Content-Type", "application/json");
 
+            // Create a JSON object to hold the message content.
             JSONObject message = new JSONObject();
             message.put("role", "user");
             message.put("content", prompt);
 
+            // Create a JSON array to hold the message object.
             JSONArray messagesArray = new JSONArray();
             messagesArray.put(message);
 
+            // Create the main JSON body with necessary parameters.
             JSONObject jsonBody = new JSONObject();
             jsonBody.put("model", "gpt-3.5-turbo");
             jsonBody.put("messages", messagesArray);
@@ -106,12 +109,15 @@ public class OpenAIAPIHandler {
             jsonBody.put("frequency_penalty", 0);
             jsonBody.put("presence_penalty", 0);
 
+            // Create a string entity for the JSON body.
             StringEntity stringEntity = new StringEntity(jsonBody.toString());
             postRequest.setEntity(stringEntity);
 
+            // Execute the HTTP POST request.
             HttpResponse response = httpClient.execute(postRequest);
             String responseString = EntityUtils.toString(response.getEntity());
 
+            // Parse the JSON response to extract the GPT-3 generated content.
             JSONObject jsonResponse = new JSONObject(responseString);
 
             if (jsonResponse.has("choices")) {
