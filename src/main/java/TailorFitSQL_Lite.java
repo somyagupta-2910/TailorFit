@@ -9,13 +9,13 @@ public class TailorFitSQL_Lite {
         String jdbcUrl = "jdbc:sqlite:database.db";
 
         try {
-            // Load the SQLite JDBC driver
             Class.forName("org.sqlite.JDBC");
 
+            // Create a connection to the database
             try (Connection connection = DriverManager.getConnection(jdbcUrl)) {
                 System.out.println("Connected to the database.");
     
-                // Define your SQL statement with placeholders for parameters
+                // Sets up table schema
                 String createTableSQL = "CREATE TABLE IF NOT EXISTS Users (" +
                         "ID INTEGER PRIMARY KEY AUTOINCREMENT," +
                         "Name TEXT," +
@@ -37,12 +37,10 @@ public class TailorFitSQL_Lite {
     
                 // Create a PreparedStatement object
                 try (PreparedStatement preparedStatement = connection.prepareStatement(createTableSQL)) {
-                    // Execute the SQL statement to create the table
+                    // Execute the SQL statement to create the table if it doesn't exist
                     preparedStatement.executeUpdate();
-    
                     System.out.println("Table created (if not exists).");
                 }
-    
             }
         } catch (ClassNotFoundException | SQLException e) {
             e.printStackTrace();
