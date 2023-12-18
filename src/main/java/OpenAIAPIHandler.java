@@ -36,8 +36,8 @@ public class OpenAIAPIHandler {
     // Method to send a prompt to the OpenAI GPT-3 API and retrieve a response.
     public String sendPromptToGPT(User user) {
         String prompt = buildPrompt(user);
-        System.out.println("Prompt that is sent: ");
-        System.out.println(prompt);
+        //System.out.println("Prompt that is sent: ");
+        //System.out.println(prompt);
         return sendPostRequest(prompt);
     }
 

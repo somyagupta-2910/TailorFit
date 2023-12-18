@@ -28,17 +28,42 @@ public class UserDetailsGUI extends JFrame {
  	PrintWriter out;
 
     public UserDetailsGUI() {
-    	setTitle("TailorFit");
+    	setTitle("TailorFit: Personalized Fitness Recommendations");
         createInitialScreen();
     }
     
-    // Method to create initial screen layout
+
+    // Method to create inital screen layout
     private void createInitialScreen() {
     	getContentPane().removeAll();
-        initialPanel = new JPanel(new GridLayout(0, 1));
-        fetchButton = new JButton("Fetch Previous Recommendation");
-        generateButton = new JButton("Generate New Recommendation");
+        getContentPane().setBackground(Color.decode("#F8F8FF")); // Light background color for the content pane
 
+        // Set a larger default size for the JFrame
+        setSize(800, 600); // Example size, you can adjust this
+
+        initialPanel = new JPanel();
+        initialPanel.setLayout(new GridBagLayout());
+        initialPanel.setBackground(Color.decode("#F8F8FF"));
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.insets = new Insets(10, 50, 10, 50);
+
+        Color buttonBackgroundColor = Color.decode("#176B87"); // A dark teal color
+
+        fetchButton = new RoundedButton("Fetch Previous Recommendation");
+        generateButton = new RoundedButton("Generate New Recommendation");
+
+        // Style the buttons
+        styleButton(fetchButton, buttonBackgroundColor);
+        styleButton(generateButton, buttonBackgroundColor);
+
+        // Add buttons to the panel
+        initialPanel.add(fetchButton, gbc);
+        initialPanel.add(generateButton, gbc);
+
+        // Set up action listeners for buttons
         fetchButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 createFetchRecommendationScreen();
@@ -51,34 +76,27 @@ public class UserDetailsGUI extends JFrame {
             }
         });
 
-        initialPanel.add(fetchButton);
-        initialPanel.add(generateButton);
-
+        // Set up the menu bar
         JMenuBar menuBar = new JMenuBar();
         setJMenuBar(menuBar);
 
-
-        // Add "Go back to initial screen" option to the file menu
         JMenu fileMenu = new JMenu("File");
         menuBar.add(fileMenu);
 
-        // Create "Connect" menu item
         JMenuItem connectMenuItem = new JMenuItem("Connect");
         connectMenuItem.addActionListener(new ConnectActionListener());
         fileMenu.add(connectMenuItem);
 
-        // Create "Close" menu item
         JMenuItem closeMenuItem = new JMenuItem("Close");
         closeMenuItem.addActionListener(new CloseActionListener());
         fileMenu.add(closeMenuItem);
-        //
 
-        // Create "Close" menu item
         JMenuItem goBackMenuItem = new JMenuItem("Go back to initial screen");
         goBackMenuItem.addActionListener(new GoBackActionListener());
         fileMenu.add(goBackMenuItem);
 
-        add(initialPanel);
+        // Add the panel to the frame
+        getContentPane().add(initialPanel, BorderLayout.CENTER);
 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         pack();
@@ -87,28 +105,69 @@ public class UserDetailsGUI extends JFrame {
         revalidate();
         repaint();
     }
+    
+    private void styleButton(JButton button, Color backgroundColor) {
+        button.setFont(new Font("Calibri", Font.PLAIN, 14));
+        button.setOpaque(false);
+        button.setContentAreaFilled(false);
+        button.setBorderPainted(false);
+        button.setForeground(Color.WHITE);
+        button.setBackground(backgroundColor);
+        button.setFocusPainted(false);
+    }
 
+    // Custom JButton class with rounded corners
+    class RoundedButton extends JButton {
+        private static final int ARC_WIDTH = 20;
+        private static final int ARC_HEIGHT = 20;
+
+        public RoundedButton(String label) {
+            super(label);
+            setFocusPainted(false);
+            setBorderPainted(false);
+            setContentAreaFilled(false);
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            g.setColor(getBackground());
+            g.fillRoundRect(0, 0, getWidth(), getHeight(), ARC_WIDTH, ARC_HEIGHT);
+            super.paintComponent(g);
+        }
+    }
     
     // Method to create the screen for fetching recommendations
     private void createFetchRecommendationScreen() {
         getContentPane().removeAll();
         setLayout(new BorderLayout());
 
+        // Set a background color for the fetchPanel
         JPanel fetchPanel = new JPanel(new GridLayout(0, 2));
-        final JTextField emailField = new JTextField();
-        JButton submitButton = new JButton("Submit");
+        fetchPanel.setBackground(Color.decode("#F8F8FF")); // Light background color for the panel
 
-        fetchPanel.add(new JLabel("Enter Email ID:"));
-        fetchPanel.add(emailField);
-        add(new JSeparator(SwingConstants.HORIZONTAL));
-        fetchPanel.add(submitButton);
-        
+        // Create the email input field and label
+        JLabel emailLabel = new JLabel("Enter Email ID:");
+        final JTextField emailField = new JTextField();
+        emailLabel.setLabelFor(emailField); // Associate the label with the input field
+
+        // Style the submit button
+        JButton submitButton = new JButton("Submit");
         submitButton.setOpaque(true);
-        submitButton.setBorderPainted(false); // Needed for some look and feels like Nimbus
-        submitButton.setBackground(Color.decode("#176B87")); // Choose the color you want
-        submitButton.setForeground(Color.WHITE); 
-        
-        // Adding action listener to submit button
+        submitButton.setBorderPainted(false);
+        submitButton.setBackground(Color.decode("#176B87")); // Dark teal background color
+        submitButton.setForeground(Color.WHITE);
+        submitButton.setFont(new Font("Calibri", Font.PLAIN, 14)); // Calibri font
+
+        // Add components to the fetchPanel
+        fetchPanel.add(emailLabel);
+        fetchPanel.add(emailField);
+
+        // Create a panel to hold the submit button and center it
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        buttonPanel.setBackground(fetchPanel.getBackground()); // Use the same background color
+        buttonPanel.add(submitButton);
+
+        // Add action listener to the submit button
         submitButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 String email = emailField.getText();
@@ -116,7 +175,10 @@ public class UserDetailsGUI extends JFrame {
             }
         });
 
-        add(fetchPanel, BorderLayout.CENTER);
+        // Add the fetchPanel and buttonPanel to the frame
+        add(fetchPanel, BorderLayout.NORTH); // The form at the top
+        add(buttonPanel, BorderLayout.CENTER); // The submit button centered
+
         revalidate();
         repaint();
     }
@@ -125,7 +187,7 @@ public class UserDetailsGUI extends JFrame {
     private void setupNewRecommendationUI() {
     	// Define the colors
     	Color primaryColor = Color.decode("#003366"); // Deep Blue
-        Color secondaryColor = Color.decode("#CCFF00"); // Electric Lime
+        Color secondaryColor = Color.decode("#FFFDD0"); // Electric Lime
         Color tertiaryColor = Color.decode("#D3D3D3"); // Light Grey
         Color highlightColor = Color.decode("#FF6EC7"); // Neon Pink
         Color backgroundColor = Color.decode("#F8F8FF"); // Off-White
@@ -171,7 +233,7 @@ public class UserDetailsGUI extends JFrame {
         nameLabel.setOpaque(true);
         nameLabel.setForeground(fontColorSecondary);
         nameLabel.setBackground(primaryColor);
-        nameLabel.setFont(new Font("Arial", Font.BOLD, 14));
+        nameLabel.setFont(new Font("Montserrat", Font.BOLD, 14));
         nameLabel.setHorizontalAlignment(JLabel.CENTER);
         add(nameLabel);
         nameField = new JTextField();
@@ -182,7 +244,7 @@ public class UserDetailsGUI extends JFrame {
         emailLabel.setOpaque(true);
         emailLabel.setForeground(fontColorPrimary);
         emailLabel.setBackground(secondaryColor);
-        emailLabel.setFont(new Font("Arial", Font.BOLD, 14));
+        emailLabel.setFont(new Font("Montserrat", Font.BOLD, 14));
         emailLabel.setHorizontalAlignment(JLabel.CENTER);
         add(emailLabel);
         emailField = new JTextField();
@@ -193,7 +255,7 @@ public class UserDetailsGUI extends JFrame {
         cityLabel.setOpaque(true);
         cityLabel.setForeground(fontColorSecondary); 
         cityLabel.setBackground(primaryColor);
-        cityLabel.setFont(new Font("Arial", Font.BOLD, 14));
+        cityLabel.setFont(new Font("Montserrat", Font.BOLD, 14));
         cityLabel.setHorizontalAlignment(JLabel.CENTER);
         add(cityLabel);
         cityField = new JTextField();
@@ -204,7 +266,7 @@ public class UserDetailsGUI extends JFrame {
         genderLabel.setOpaque(true);
         genderLabel.setForeground(fontColorPrimary);
         genderLabel.setBackground(secondaryColor);
-        genderLabel.setFont(new Font("Arial", Font.BOLD, 14));
+        genderLabel.setFont(new Font("Montserrat", Font.BOLD, 14));
         genderLabel.setHorizontalAlignment(JLabel.CENTER);
         add(genderLabel);
         String[] genders = {"Male", "Female", "Transgender", "Non-Binary", "Prefer not to respond"};
@@ -218,7 +280,7 @@ public class UserDetailsGUI extends JFrame {
         ethnicLabel.setOpaque(true);
         ethnicLabel.setForeground(fontColorSecondary);
         ethnicLabel.setBackground(primaryColor);
-        ethnicLabel.setFont(new Font("Arial", Font.BOLD, 14));
+        ethnicLabel.setFont(new Font("Montserrat", Font.BOLD, 14));
         ethnicLabel.setHorizontalAlignment(JLabel.CENTER);
         add(ethnicLabel);
         String[] ethnicities = {"African American", "Asian", "Caucasian", "Hispanic", "Other"};
@@ -232,7 +294,7 @@ public class UserDetailsGUI extends JFrame {
         ageLabel.setOpaque(true);
         ageLabel.setForeground(fontColorPrimary);
         ageLabel.setBackground(secondaryColor);
-        ageLabel.setFont(new Font("Arial", Font.BOLD, 14));
+        ageLabel.setFont(new Font("Montserrat", Font.BOLD, 14));
         ageLabel.setHorizontalAlignment(JLabel.CENTER);
         add(ageLabel);
         ageField = new JTextField();
@@ -243,7 +305,7 @@ public class UserDetailsGUI extends JFrame {
         heightLabel.setOpaque(true);
         heightLabel.setForeground(fontColorSecondary);
         heightLabel.setBackground(primaryColor);
-        heightLabel.setFont(new Font("Arial", Font.BOLD, 14));
+        heightLabel.setFont(new Font("Montserrat", Font.BOLD, 14));
         heightLabel.setHorizontalAlignment(JLabel.CENTER);
         add(heightLabel);
         heightField = new JTextField();
@@ -254,7 +316,7 @@ public class UserDetailsGUI extends JFrame {
         weightLabel.setOpaque(true);
         weightLabel.setForeground(fontColorPrimary);
         weightLabel.setBackground(secondaryColor);
-        weightLabel.setFont(new Font("Arial", Font.BOLD, 14));
+        weightLabel.setFont(new Font("Montserrat", Font.BOLD, 14));
         weightLabel.setHorizontalAlignment(JLabel.CENTER);
         add(weightLabel);
         weightField = new JTextField();
@@ -265,7 +327,7 @@ public class UserDetailsGUI extends JFrame {
         condition.setOpaque(true);
         condition.setForeground(fontColorSecondary);
         condition.setBackground(primaryColor);
-        condition.setFont(new Font("Arial", Font.BOLD, 14));
+        condition.setFont(new Font("Montserrat", Font.BOLD, 14));
         condition.setHorizontalAlignment(JLabel.CENTER);
         add(condition);
 
@@ -278,7 +340,7 @@ public class UserDetailsGUI extends JFrame {
         diet.setOpaque(true);
         diet.setForeground(fontColorPrimary);
         diet.setBackground(secondaryColor);
-        diet.setFont(new Font("Arial", Font.BOLD, 14));
+        diet.setFont(new Font("Montserrat", Font.BOLD, 14));
         diet.setHorizontalAlignment(JLabel.CENTER);
         add(diet);
         String[] dietTypes = {"Vegetarian",  "Omnivore", "Vegan", "Pescatarian"};
@@ -290,7 +352,7 @@ public class UserDetailsGUI extends JFrame {
         veggies.setOpaque(true);
         veggies.setForeground(fontColorSecondary);
         veggies.setBackground(primaryColor);
-        veggies.setFont(new Font("Arial", Font.BOLD, 14));
+        veggies.setFont(new Font("Montserrat", Font.BOLD, 14));
         add(veggies);
         add(new JLabel());
         String[] vegetables = {"Avacado", "Carrot", "Cauliflower", "Beans", "Potato", "Cabbage", "Spinach", "Tomato", "Onion", "Eggplant", "Bell Pepper"};
@@ -298,7 +360,7 @@ public class UserDetailsGUI extends JFrame {
         addCheckBoxes(vegetableCheckBoxes);
         for (JCheckBox checkBox : vegetableCheckBoxes) {
             checkBox.setOpaque(true);
-            checkBox.setBackground(backgroundColor); 
+            checkBox.setBackground(secondaryColor); 
             checkBox.setForeground(fontColorPrimary);
         }
 
@@ -308,7 +370,7 @@ public class UserDetailsGUI extends JFrame {
         fru.setOpaque(true);
         fru.setForeground(fontColorSecondary);
         fru.setBackground(primaryColor);
-        fru.setFont(new Font("Arial", Font.BOLD, 14));
+        fru.setFont(new Font("Montserrat", Font.BOLD, 14));
         add(fru);
         add(new JLabel());
         String[] fruits = {"Orange", "Apple", "Banana", "Grape", "Mango", "Pineapple", "Papaya"};
@@ -316,7 +378,7 @@ public class UserDetailsGUI extends JFrame {
         addCheckBoxes(fruitCheckBoxes);
         for (JCheckBox checkBox : fruitCheckBoxes) {
         	checkBox.setOpaque(true);
-            checkBox.setBackground(backgroundColor); 
+            checkBox.setBackground(secondaryColor); 
             checkBox.setForeground(fontColorPrimary);
         }
 
@@ -327,7 +389,7 @@ public class UserDetailsGUI extends JFrame {
         dairyLabel.setOpaque(true);
         dairyLabel.setForeground(fontColorSecondary);
         dairyLabel.setBackground(primaryColor);
-        dairyLabel.setFont(new Font("Arial", Font.BOLD, 14));
+        dairyLabel.setFont(new Font("Montserrat", Font.BOLD, 14));
         add(dairyLabel);
         add(new JLabel());
         String[] dairy = {"Cheddar Cheese", "Cottage Cheese", "Almond Milk", "Milk", "Coconut Milk", "Yogurt", "Whey Protein"};
@@ -335,7 +397,7 @@ public class UserDetailsGUI extends JFrame {
         addCheckBoxes(dairyCheckBoxes);
         for (JCheckBox checkBox : dairyCheckBoxes) {
         	checkBox.setOpaque(true);
-            checkBox.setBackground(backgroundColor); 
+            checkBox.setBackground(secondaryColor); 
             checkBox.setForeground(fontColorPrimary);
         }
 
@@ -345,7 +407,7 @@ public class UserDetailsGUI extends JFrame {
         meatLabel.setOpaque(true);
         meatLabel.setForeground(fontColorSecondary);
         meatLabel.setBackground(primaryColor);
-        meatLabel.setFont(new Font("Arial", Font.BOLD, 14));
+        meatLabel.setFont(new Font("Montserrat", Font.BOLD, 14));
         add(meatLabel);
         add(new JLabel());
         String[] meatAndEggs = {"Chicken", "Mutton", "Seafood", "Turkey", "Beef", "Eggs", "Pork"};
@@ -353,7 +415,7 @@ public class UserDetailsGUI extends JFrame {
         addCheckBoxes(meatAndEggsCheckBoxes);
         for (JCheckBox checkBox : meatAndEggsCheckBoxes) {
         	checkBox.setOpaque(true);
-            checkBox.setBackground(backgroundColor); 
+            checkBox.setBackground(secondaryColor); 
             checkBox.setForeground(fontColorPrimary);
         }
 
@@ -363,7 +425,7 @@ public class UserDetailsGUI extends JFrame {
         grainLabel.setOpaque(true);
         grainLabel.setForeground(fontColorSecondary);
         grainLabel.setBackground(primaryColor);
-        grainLabel.setFont(new Font("Arial", Font.BOLD, 14));
+        grainLabel.setFont(new Font("Calibri", Font.BOLD, 14));
         add(grainLabel);
         add(new JLabel());
         String[] wholeGrains = {"Millet", "Oats", "Rice", "Quinoa", "Wheat"};
@@ -371,7 +433,7 @@ public class UserDetailsGUI extends JFrame {
         addCheckBoxes(wholeGrainsCheckBoxes);
         for (JCheckBox checkBox : wholeGrainsCheckBoxes) {
         	checkBox.setOpaque(true);
-            checkBox.setBackground(backgroundColor); 
+            checkBox.setBackground(secondaryColor); 
             checkBox.setForeground(fontColorPrimary);
         }
 
@@ -380,7 +442,7 @@ public class UserDetailsGUI extends JFrame {
         allergyLabel.setOpaque(true);
         allergyLabel.setForeground(fontColorSecondary);
         allergyLabel.setBackground(primaryColor);
-        allergyLabel.setFont(new Font("Arial", Font.BOLD, 14));
+        allergyLabel.setFont(new Font("Montserrat", Font.BOLD, 14));
         add(allergyLabel);
         String[] allergies = {"None", "Dairy", "Nuts", "Seafood", "Gluten"};
         allergiesComboBox = new JComboBox<>(allergies);
@@ -391,7 +453,7 @@ public class UserDetailsGUI extends JFrame {
         goalLabel.setOpaque(true);
         goalLabel.setForeground(fontColorPrimary);
         goalLabel.setBackground(secondaryColor);
-        goalLabel.setFont(new Font("Arial", Font.BOLD, 14));
+        goalLabel.setFont(new Font("Montserrat", Font.BOLD, 14));
         add(goalLabel);
         String[] goals = {"Lose Weight", "Gain Muscle"};
         goalsComboBox = new JComboBox<>(goals);
@@ -405,7 +467,7 @@ public class UserDetailsGUI extends JFrame {
         targetWeight.setOpaque(true);
         targetWeight.setForeground(fontColorSecondary);
         targetWeight.setBackground(primaryColor);
-        targetWeight.setFont(new Font("Arial", Font.BOLD, 14));
+        targetWeight.setFont(new Font("Montserrat", Font.BOLD, 14));
         add(targetWeight);
 
         
@@ -448,7 +510,7 @@ public class UserDetailsGUI extends JFrame {
                     @Override
                     public void run() {
                         User user = createUser();
-                        OpenAIAPIHandler apiHandler = new OpenAIAPIHandler("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");
+                        OpenAIAPIHandler apiHandler = new OpenAIAPIHandler("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");
                         String response = apiHandler.sendPromptToGPT(user);
                         // System.out.println(response);
                         responseArea.setText(response); // Update with the actual response
