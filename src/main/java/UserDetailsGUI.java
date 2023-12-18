@@ -103,27 +103,12 @@ public class UserDetailsGUI extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 String email = emailField.getText();
                 sendEmailToServer(email);
-                /*
-                if (checkEmailExists(email)) {
-                    // Fetch and display previous recommendation
-                    // This requires implementation based on your database
-                } else {
-                    JOptionPane.showMessageDialog(UserDetailsGUI.this, "Email not found. Please enter details for a new recommendation.");
-                    setupNewRecommendationUI();
-                }
-                */
             }
         });
 
         add(fetchPanel, BorderLayout.CENTER);
         revalidate();
         repaint();
-    }
-    
-    private boolean checkEmailExists(String email) {
-        // Implement database check for email
-        // Return true if exists, false otherwise
-        return false; // Placeholder
     }
     
     private void setupNewRecommendationUI() {
@@ -282,7 +267,7 @@ public class UserDetailsGUI extends JFrame {
                         User user = createUser();
                         OpenAIAPIHandler apiHandler = new OpenAIAPIHandler("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");
                         String response = apiHandler.sendPromptToGPT(user);
-                        System.out.println(response);
+                        // System.out.println(response);
                         responseArea.setText(response); // Update with the actual response
                         user.setGPTResponse(response);
                         sendUserToServer(user);
@@ -502,7 +487,7 @@ public class UserDetailsGUI extends JFrame {
 
                 // Read lines until the end of the stream or until the delimiter is encountered
                 while ((line = reader.readLine()) != null) {
-                    System.out.println("Received line from server: " + line);
+                    // System.out.println("Received line from server: " + line);
                     if ("END_OF_RESPONSE".equals(line)) {
                         break; // Exit the loop when the delimiter is encountered
                     }
@@ -512,7 +497,7 @@ public class UserDetailsGUI extends JFrame {
                 // Get the final multiline response as a String
                 String gptResponse = responseBuilder.toString();
 
-                System.out.println("Received GPT response from server: " + gptResponse);
+                // System.out.println("Received GPT response from server: " + gptResponse);
                 
                 // Display the GPT response in the GUI
                 displayGPTResponse(gptResponse);
@@ -580,7 +565,7 @@ public class UserDetailsGUI extends JFrame {
                 objectOutputStream.writeObject(user);
                 objectOutputStream.flush();
                 
-                // Optionally, you can notify the user that the data has been sent successfully
+                // Notify that User Data has been sent successfully
                 JOptionPane.showMessageDialog(UserDetailsGUI.this, "User data sent successfully!");
             } else {
                 // Handle the case where PrintWriter is not initialized
@@ -588,6 +573,7 @@ public class UserDetailsGUI extends JFrame {
             }
         } catch (IOException ex) {
             ex.printStackTrace();
+            // Notify that User Data has not been sent successfully
             JOptionPane.showMessageDialog(UserDetailsGUI.this, "Error sending user data: " + ex.getMessage());
         }
     }

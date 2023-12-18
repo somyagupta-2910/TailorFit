@@ -20,7 +20,6 @@ public class Server extends JFrame implements Runnable{
 	private static final AtomicLong clientThreadId = new AtomicLong(0);
 	// Text area for displaying contents
 	JTextArea ta;
-	
     // Database credentials
     private static final String jdbcUrl = "jdbc:sqlite:database.db";
 
@@ -36,10 +35,12 @@ public class Server extends JFrame implements Runnable{
 		// Start the server and set initialization text area
         ta.setText("Chat server started at " + new Date() + "\n");
 		
+        // Create the database if it doesn't exist
+        TailorFitSQL_Lite.main(null);
+
 		// create a new thread for the server and start it
 		Thread t = new Thread(this);
 		t.start();
-		
 	}
 
     public void run() {
@@ -48,19 +49,18 @@ public class Server extends JFrame implements Runnable{
 			ServerSocket serverSocket = new ServerSocket(9898);
 
 			while (true) {
-				
 				// Listen for a connection request
 				Socket clientSocket = serverSocket.accept();
 
 				// Display client connection on server text area
 				ta.append("Starting thread for client " + clientThreadId.incrementAndGet() + " on " + new Date() + "\n");
-				// Create a new thread for each client
-                
+				
+                // Create a new thread for each client
                 Thread clientThread = new Thread(() -> {
                     try {
+                        // Call handleClient method to handle incoming client
                         handleClient(clientSocket, new PrintWriter(clientSocket.getOutputStream(), true));
                     } catch (IOException e) {
-                        // TODO Auto-generated catch block
                         e.printStackTrace();
                     }
                 
@@ -82,17 +82,17 @@ public class Server extends JFrame implements Runnable{
 		try {
             while(true){
                 try{
-                    // Read the User object from the client
+                    // Create the ObjectInputStream to read from client
                     ObjectInputStream objectInputStream = new ObjectInputStream(clientSocket.getInputStream());
 
-                    // Read the received object
+                    // Read the incoming object from the client
                     Object receivedObject = objectInputStream.readObject();
                     
-
+                    // Check the type of the received object
                     if(receivedObject instanceof User){
                         // Received object is a User object
                         User receivedUser = (User) receivedObject;
-                        System.out.println("Received user: " + receivedUser.toString());
+                        // System.out.println("Received user: " + receivedUser.toString());
                         try (Connection connection = DriverManager.getConnection(jdbcUrl)) {
                             System.out.println("Connected to the database.");
                             saveUserToDatabase(connection, receivedUser);
@@ -102,12 +102,12 @@ public class Server extends JFrame implements Runnable{
                     }else if(receivedObject instanceof String){
                         // Received object is a String
                         String receivedEmail = (String) receivedObject;
-                        System.out.println("Received string: " + receivedEmail);
+                        // System.out.println("Received string: " + receivedEmail);
                         try (Connection connection = DriverManager.getConnection(jdbcUrl)) {
                             System.out.println("Connected to the database.");
                             String gptResponse = getGPTResponseByEmail(connection, receivedEmail);
 
-                        // In handleClient method after sending the response
+                        // Send the GPTResponse to the client
                         clientOut.println(gptResponse);
                         // Add a delimiter to indicate the end of the response
                         clientOut.println("END_OF_RESPONSE");
@@ -128,36 +128,22 @@ public class Server extends JFrame implements Runnable{
             e.printStackTrace();
         }finally{
             try {
+                // Close the socket
                 clientSocket.close();
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
-        
     }
 
-
-
-    public static void main(String[] args) {
-
-        // Instantiate chat server
-		Server appServer = new Server();
-		// Set the close operation of the JFrame
-		appServer.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		// Set the visibility of the JFrame
-		appServer.setVisible(true);
-
-    }
 
     // Save user data to the database
     private static void saveUserToDatabase(Connection connection, User user) throws SQLException {
-            // Revise this to update if this user already exists
-            String sql = "INSERT INTO Users (Name, Email, City, Gender, Ethnicity, Age, Height, CurrentWeight, MedicalConditions, FoodOptions, DietType, FoodAllergies, Goal, TargetWeight, GPTResponse) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-            
+            String sql = "INSERT OR REPLACE INTO Users (Name, Email, City, Gender, Ethnicity, Age, Height, CurrentWeight, MedicalConditions, FoodOptions, DietType, FoodAllergies, Goal, TargetWeight, GPTResponse) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
             String foodOptions = Arrays.toString(user.getVegetables()) + Arrays.toString(user.getFruits()) + Arrays.toString(user.getDairy()) + Arrays.toString(user.getMeatAndEggs()) + Arrays.toString(user.getWholeGrains());
             
             try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-                // Set parameters and execute the statement
+                // Set parameters for the prepared statement
                 preparedStatement.setString(1, user.getFirstName());
                 preparedStatement.setString(2, user.getEmail());
                 preparedStatement.setString(3, user.getCity());
@@ -174,6 +160,7 @@ public class Server extends JFrame implements Runnable{
                 preparedStatement.setDouble(14, user.getTargetWeight());
                 preparedStatement.setString(15, user.getGPTResponse());
 
+                // Execute the SQL statement
                 preparedStatement.executeUpdate();
             }catch(Exception e){
                 e.printStackTrace();
@@ -198,17 +185,26 @@ public class Server extends JFrame implements Runnable{
                 if (resultSet.next()) {
                     // Retrieve the GPTResponse from the result set
                     gptResponse = resultSet.getString("GPTResponse");
-                    System.out.println("GPTResponse for user with email " + email + ": \n" + gptResponse);
+                    // System.out.println("GPTResponse for user with email " + email + ": \n" + gptResponse);
                 } else {
-                    System.out.println("No user found with email: " + email);
+                    // System.out.println("No user found with email: " + email);
                     gptResponse = "No user found with email: " + email;
                 }
             }
         } catch (Exception e) {
             e.printStackTrace();
         } 
-
         return gptResponse;
     }
 
+    public static void main(String[] args) {
+
+        // Instantiate chat server
+		Server appServer = new Server();
+		// Set the close operation of the JFrame
+		appServer.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		// Set the visibility of the JFrame
+		appServer.setVisible(true);
+
+    }
 }
