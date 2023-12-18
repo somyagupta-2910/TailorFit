@@ -1,26 +1,17 @@
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.List;
-import java.util.Scanner;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicLong;
-
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
 import javax.swing.JFrame;
 import javax.swing.JTextArea;
 
@@ -31,11 +22,7 @@ public class Server extends JFrame implements Runnable{
 	JTextArea ta;
 	
     // Database credentials
-    private static final String JDBC_URL = "jdbc:mysql://localhost:3306/";
-    private static final String USERNAME = "root";
-    private static final String PASSWORD = "password";
-    private static final String DATABASE_NAME = "tailorfit"; // Change this to your desired database name
-
+    private static final String jdbcUrl = "jdbc:sqlite:database.db";
 
     public Server() {
 		// Constructor
@@ -93,46 +80,60 @@ public class Server extends JFrame implements Runnable{
     // Method to handle client for each server thread
 	private static void handleClient(Socket clientSocket, PrintWriter clientOut) {
 		try {
-            // Read the User object from the client
-            ObjectInputStream objectInputStream = new ObjectInputStream(clientSocket.getInputStream());
+            while(true){
+                try{
+                    // Read the User object from the client
+                    ObjectInputStream objectInputStream = new ObjectInputStream(clientSocket.getInputStream());
 
-            // Read the received object
-            Object receivedObject = objectInputStream.readObject();
-
-            if(receivedObject instanceof User){
-                // Received object is a User object
-                User receivedUser = (User) receivedObject;
-                System.out.println("Received user: " + receivedUser.toString());
-                try (Connection connection = DriverManager.getConnection(JDBC_URL + DATABASE_NAME, USERNAME, PASSWORD)) {
-                    System.out.println("Connected to the database!");
-                    saveUserToDatabase(connection, receivedUser);
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }else if(receivedObject instanceof String){
-                // Received object is a String
-                String receivedEmail = (String) receivedObject;
-                System.out.println("Received string: " + receivedEmail);
-                try (Connection connection = DriverManager.getConnection(JDBC_URL + DATABASE_NAME, USERNAME, PASSWORD)) {
-                    System.out.println("Connected to the database!");
-                    String gptResponse = getGPTResponseByEmail(connection, receivedEmail);
-
-                    // Send the GPT response back to the client
-                    clientOut.println(gptResponse);
-
-                    clientOut.flush();
-                    clientSocket.shutdownOutput(); // Signal end of data transmission
+                    // Read the received object
+                    Object receivedObject = objectInputStream.readObject();
                     
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }else {
-                System.out.println("Unsupported object type received: " + receivedObject.getClass().getName());
-            }
 
+                    if(receivedObject instanceof User){
+                        // Received object is a User object
+                        User receivedUser = (User) receivedObject;
+                        System.out.println("Received user: " + receivedUser.toString());
+                        try (Connection connection = DriverManager.getConnection(jdbcUrl)) {
+                            System.out.println("Connected to the database.");
+                            saveUserToDatabase(connection, receivedUser);
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                        }
+                    }else if(receivedObject instanceof String){
+                        // Received object is a String
+                        String receivedEmail = (String) receivedObject;
+                        System.out.println("Received string: " + receivedEmail);
+                        try (Connection connection = DriverManager.getConnection(jdbcUrl)) {
+                            System.out.println("Connected to the database.");
+                            String gptResponse = getGPTResponseByEmail(connection, receivedEmail);
+
+                        // In handleClient method after sending the response
+                        clientOut.println(gptResponse);
+                        // Add a delimiter to indicate the end of the response
+                        clientOut.println("END_OF_RESPONSE");
+                        clientOut.flush();
+                            
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                        }
+                    }else {
+                        System.out.println("Unsupported object type received: " + receivedObject.getClass().getName());
+                    }
+                }catch (EOFException e) {
+                    System.out.println("Client disconnected");
+                    break;
+                }
+            }
         } catch (Exception e) {
             e.printStackTrace();
+        }finally{
+            try {
+                clientSocket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
+        
     }
 
 
@@ -151,26 +152,27 @@ public class Server extends JFrame implements Runnable{
     // Save user data to the database
     private static void saveUserToDatabase(Connection connection, User user) throws SQLException {
             // Revise this to update if this user already exists
-            String sql = "INSERT INTO Users (FirstName, LastName, Email, City, Gender, Ethnicity, Age, Height, CurrentWeight, MedicalConditions, FoodOptions, DietType, FoodAllergies, Goal, TargetWeight, GPTResponse) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-                
+            String sql = "INSERT INTO Users (Name, Email, City, Gender, Ethnicity, Age, Height, CurrentWeight, MedicalConditions, FoodOptions, DietType, FoodAllergies, Goal, TargetWeight, GPTResponse) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            
+            String foodOptions = Arrays.toString(user.getVegetables()) + Arrays.toString(user.getFruits()) + Arrays.toString(user.getDairy()) + Arrays.toString(user.getMeatAndEggs()) + Arrays.toString(user.getWholeGrains());
+            
             try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
                 // Set parameters and execute the statement
                 preparedStatement.setString(1, user.getFirstName());
-                preparedStatement.setString(2, "Doe");
-                preparedStatement.setString(3, user.getEmail());
-                preparedStatement.setString(4, user.getCity());
-                preparedStatement.setString(5, user.getGender());
-                preparedStatement.setString(6, user.getEthnicity());
-                preparedStatement.setInt(7, user.getAge());
-                preparedStatement.setDouble(8, user.getHeight());
-                preparedStatement.setDouble(9, user.getCurrentWeight());
-                preparedStatement.setString(10, user.getMedicalConditions());
-                preparedStatement.setString(11, Arrays.toString(user.getVegetables()));
-                preparedStatement.setString(12, user.getDietType());
-                preparedStatement.setString(13, user.getFoodAllergies());
-                preparedStatement.setString(14, user.getGoal());
-                preparedStatement.setDouble(15, user.getTargetWeight());
-                preparedStatement.setString(16, user.getGPTResponse());
+                preparedStatement.setString(2, user.getEmail());
+                preparedStatement.setString(3, user.getCity());
+                preparedStatement.setString(4, user.getGender());
+                preparedStatement.setString(5, user.getEthnicity());
+                preparedStatement.setInt(6, user.getAge());
+                preparedStatement.setDouble(7, user.getHeight());
+                preparedStatement.setDouble(8, user.getCurrentWeight());
+                preparedStatement.setString(9, user.getMedicalConditions());
+                preparedStatement.setString(10, foodOptions);
+                preparedStatement.setString(11, user.getDietType());
+                preparedStatement.setString(12, user.getFoodAllergies());
+                preparedStatement.setString(13, user.getGoal());
+                preparedStatement.setDouble(14, user.getTargetWeight());
+                preparedStatement.setString(15, user.getGPTResponse());
 
                 preparedStatement.executeUpdate();
             }catch(Exception e){
@@ -209,12 +211,4 @@ public class Server extends JFrame implements Runnable{
         return gptResponse;
     }
 
-
-    /* 
-    // Simulate getting a connection from a connection pool
-    private static Connection getConnectionFromPool() throws SQLException {
-        // Replace this with your actual logic to get a connection from a connection pool
-        return YourConnectionPool.getConnection();
-    }
-    */
 }
