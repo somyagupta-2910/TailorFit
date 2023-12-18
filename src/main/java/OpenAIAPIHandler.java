@@ -68,7 +68,6 @@ public class OpenAIAPIHandler {
                 + "Output format:\n"
                 + "Current BMI: [Provide the current BMI without showing any calculations]\n"
                 + "Ideal BMI based on Target Weight: [Provide the ideal BMI based on the target weight without showing any calculations]\n"
-                + "Number of Calories needed to burn to achieve the target weight: [Show the number of calories needed]\n"
                 + "Number of Calories to eat everyday to achieve the target weight: [Show the number of calories]\n"
                 + "\n"
                 + "7-day Extensive Workout plan:\n"
