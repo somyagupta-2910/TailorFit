@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.regex.Pattern;
 
 public class UserDetailsGUI extends JFrame {
+	// Declaration of UI components and variables
     private JTextField nameField, emailField, cityField, ageField, heightField, weightField, targetWeightField;
     private JComboBox<String> genderComboBox, ethnicityComboBox, medicalConditionsComboBox, dietTypeComboBox, allergiesComboBox, goalsComboBox;
     private JCheckBox[] vegetableCheckBoxes, fruitCheckBoxes, dairyCheckBoxes, meatAndEggsCheckBoxes, wholeGrainsCheckBoxes;
@@ -21,9 +22,8 @@ public class UserDetailsGUI extends JFrame {
     
     private JPanel initialPanel;
     private JButton fetchButton, generateButton;
-    // private JMenu fileMenu;
     
- // Socket variables
+    // Socket variables for network communication
  	Socket clientSocket;
  	PrintWriter out;
 
@@ -32,12 +32,14 @@ public class UserDetailsGUI extends JFrame {
         createInitialScreen();
     }
     
+    // Method to create initial screen layout
     private void createInitialScreen() {
         getContentPane().removeAll();
         initialPanel = new JPanel(new GridLayout(0, 1));
         fetchButton = new JButton("Fetch Previous Recommendation");
         generateButton = new JButton("Generate New Recommendation");
-
+        
+        // Adding action listeners to buttons
         fetchButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 createFetchRecommendationScreen();
@@ -52,12 +54,13 @@ public class UserDetailsGUI extends JFrame {
 
         initialPanel.add(fetchButton);
         initialPanel.add(generateButton);
-
+        
+        // Create and set up the menu bar
         JMenuBar menuBar = new JMenuBar();
         setJMenuBar(menuBar);
 
 
-        // Add "Go back to initial screen" option to the file menu
+        // Adding "File" menu with options to the menu bar
         JMenu fileMenu = new JMenu("File");
         menuBar.add(fileMenu);
 
@@ -72,13 +75,14 @@ public class UserDetailsGUI extends JFrame {
         fileMenu.add(closeMenuItem);
         //
 
-        // Create "Close" menu item
+        // Adding "Go back to initial screen" menu item
         JMenuItem goBackMenuItem = new JMenuItem("Go back to initial screen");
         goBackMenuItem.addActionListener(new GoBackActionListener());
         fileMenu.add(goBackMenuItem);
 
         add(initialPanel);
-
+        
+        // Setting up the frame
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         pack();
         setLocationRelativeTo(null);
@@ -87,6 +91,7 @@ public class UserDetailsGUI extends JFrame {
         repaint();
     }
     
+    // Method to create the screen for fetching recommendations
     private void createFetchRecommendationScreen() {
         getContentPane().removeAll();
         setLayout(new BorderLayout());
@@ -98,7 +103,8 @@ public class UserDetailsGUI extends JFrame {
         fetchPanel.add(new JLabel("Enter Email ID:"));
         fetchPanel.add(emailField);
         fetchPanel.add(submitButton);
-
+        
+        // Adding action listener to submit button
         submitButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 String email = emailField.getText();
@@ -111,6 +117,7 @@ public class UserDetailsGUI extends JFrame {
         repaint();
     }
     
+    // Method to set up the UI for new recommendation
     private void setupNewRecommendationUI() {
         getContentPane().removeAll();
         setLayout(new GridLayout(0, 2));
@@ -134,13 +141,17 @@ public class UserDetailsGUI extends JFrame {
         fileMenu.add(closeMenuItem);
         //
 
-        // Create "Close" menu item
+        // Adding "Go back to initial screen" menu item
         JMenuItem goBackMenuItem = new JMenuItem("Go back to initial screen");
         goBackMenuItem.addActionListener(new GoBackActionListener());
         fileMenu.add(goBackMenuItem);
-
+        
+        // Setting up input panel for user data entry
         inputPanel = new JPanel(new GridLayout(0, 2));
-
+        
+        // Adding user input fields to the panel
+        // Name, email, city, gender, ethnicity, age, height, weight, medical conditions, diet type, allergies, goals, target weight
+        // Each label and input field is added to the panel
         add(new JLabel("Name:"));
         nameField = new JTextField();
         add(nameField);
@@ -176,7 +187,7 @@ public class UserDetailsGUI extends JFrame {
         add(weightField);
 
         add(new JLabel("Any existing medical conditions or physical limitations:"));
-        String[] medicalConditions = {"Cardiovascular Conditions", "Respiratory Conditions", "Joint or Muscle Issues", "None"};
+        String[] medicalConditions = {"None", "Cardiovascular Conditions", "Diabetes", "Joint or Muscle Issues", "Respiratory Conditions"};
         medicalConditionsComboBox = new JComboBox<>(medicalConditions);
         add(medicalConditionsComboBox);
 
@@ -239,17 +250,20 @@ public class UserDetailsGUI extends JFrame {
         targetWeightField = new JTextField();
         add(targetWeightField);
 
-        // Initialize the JTextArea and JScrollPane
+        // Initialize the JTextArea and JScrollPane for displaying responses
         responseArea = new JTextArea();
         responseArea.setEditable(false); // Make it read-only
         scrollPane = new JScrollPane(responseArea);
         scrollPane.setPreferredSize(new Dimension(800, 600));
 
         add(new JSeparator());
+        
+        // Adding submit button with action listener
         JButton submitButton = new JButton("Submit");
         submitButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+            	// Validate user inputs before proceeding
             	if (!validateInputs()) {
                     JOptionPane.showMessageDialog(UserDetailsGUI.this, "Please fill in all required fields with valid information.", "Input Error", JOptionPane.ERROR_MESSAGE);
                     return;
@@ -265,7 +279,7 @@ public class UserDetailsGUI extends JFrame {
                     @Override
                     public void run() {
                         User user = createUser();
-                        OpenAIAPIHandler apiHandler = new OpenAIAPIHandler("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");
+                        OpenAIAPIHandler apiHandler = new OpenAIAPIHandler("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");
                         String response = apiHandler.sendPromptToGPT(user);
                         // System.out.println(response);
                         responseArea.setText(response); // Update with the actual response
@@ -289,7 +303,9 @@ public class UserDetailsGUI extends JFrame {
         repaint();
     }
     
+    // Method to validate checkbox selections in the UI
     private boolean validateCheckboxSelection(JCheckBox[] checkBoxes) {
+    	// Check if 'None' is selected or any other checkbox is selected
         boolean noneSelected = checkBoxes[0].isSelected();
         boolean otherSelected = false;
         for (int i = 1; i < checkBoxes.length; i++) {
@@ -301,6 +317,7 @@ public class UserDetailsGUI extends JFrame {
         return noneSelected || otherSelected;
     }
     
+    // Method to validate all user inputs
     private boolean validateInputs() {
         // Validate the name field
         if (nameField.getText().isEmpty() || !nameField.getText().matches("[A-Za-z ]+")) {
@@ -361,7 +378,9 @@ public class UserDetailsGUI extends JFrame {
         return true;
     }
 
+    // Method to create a User object from input fields
     private User createUser() {
+    	// Extract data from input fields and create a User object
         String[] selectedVegetables = getSelectedItems(vegetableCheckBoxes);
         String[] selectedFruits = getSelectedItems(fruitCheckBoxes);
         String[] selectedDairy = getSelectedItems(dairyCheckBoxes);
@@ -390,8 +409,10 @@ public class UserDetailsGUI extends JFrame {
                 null
         );
     }
-
+    
+    // Method to get selected items from checkboxes
     private String[] getSelectedItems(JCheckBox[] checkBoxes) {
+    	// Get the selected items from the checkbox array
         ArrayList<String> selectedItems = new ArrayList<>();
         for (JCheckBox checkBox : checkBoxes) {
             if (checkBox.isSelected()) {
@@ -400,7 +421,8 @@ public class UserDetailsGUI extends JFrame {
         }
         return selectedItems.toArray(new String[0]);
     }
-
+    
+    // Method to create checkboxes for options
     private JCheckBox[] createCheckBoxes(String[] options, String noneOption) {
         JCheckBox[] checkBoxes = new JCheckBox[options.length + 1];
 
@@ -444,7 +466,7 @@ public class UserDetailsGUI extends JFrame {
         return finalCheckBoxes; // Return the final array
     }
     
-    
+    // Method to display the GPT response
     private void displayGPTResponse(String gptResponse) {
         // Clear current content
         getContentPane().removeAll();
@@ -465,7 +487,8 @@ public class UserDetailsGUI extends JFrame {
         revalidate();
         repaint();
     }
-
+    
+    // Method to send email to the server
     private void sendEmailToServer(String email) {
         try {
             // Ensure the PrintWriter is initialized
@@ -513,7 +536,7 @@ public class UserDetailsGUI extends JFrame {
         }
     }
 
-
+    // ActionListener for "Connect" menu item
     private class ConnectActionListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
@@ -530,6 +553,7 @@ public class UserDetailsGUI extends JFrame {
 		}
     }
     
+    // ActionListener for "Close" menu item
     private class CloseActionListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
@@ -547,7 +571,8 @@ public class UserDetailsGUI extends JFrame {
 			}
         }
     }
-
+    
+    // ActionListener for "Go back to initial screen" menu item
     private class GoBackActionListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
@@ -556,6 +581,7 @@ public class UserDetailsGUI extends JFrame {
         }
     }
     
+    // Method to send user data to the server
     private void sendUserToServer(User user) {
         try {
             // Ensure the PrintWriter is initialized
@@ -578,13 +604,14 @@ public class UserDetailsGUI extends JFrame {
         }
     }
 
-
+    // Method to add checkboxes to the UI
     private void addCheckBoxes(JCheckBox[] checkBoxes) {
         for (JCheckBox checkBox : checkBoxes) {
             add(checkBox);
         }
     }
 
+    // Main method
     public static void main(String[] args) {
         SwingUtilities.invokeLater(new Runnable() {
             @Override

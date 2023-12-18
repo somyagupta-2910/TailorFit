@@ -44,38 +44,38 @@ public class Server extends JFrame implements Runnable{
 	}
 
     public void run() {
-		try {
-			// Create a server socket
-			ServerSocket serverSocket = new ServerSocket(9898);
+        try {
+            // Create a server socket
+            ServerSocket serverSocket = new ServerSocket(9898);
 
-			while (true) {
-				// Listen for a connection request
-				Socket clientSocket = serverSocket.accept();
+            while (true) {
+                // Listen for a connection request
+                final Socket clientSocket = serverSocket.accept();
 
-				// Display client connection on server text area
-				ta.append("Starting thread for client " + clientThreadId.incrementAndGet() + " on " + new Date() + "\n");
-				
-                // Create a new thread for each client
-                Thread clientThread = new Thread(() -> {
-                    try {
-                        // Call handleClient method to handle incoming client
-                        handleClient(clientSocket, new PrintWriter(clientSocket.getOutputStream(), true));
-                    } catch (IOException e) {
-                        e.printStackTrace();
+                // Display client connection on server text area
+                ta.append("Starting thread for client " + clientThreadId.incrementAndGet() + " at " + new Date() + "\n");
+
+                // Create a new thread for each client using an anonymous inner class
+                Thread clientThread = new Thread(new Runnable() {
+                    public void run() {
+                        try {
+                            // Call handleClient method to handle incoming client
+                            handleClient(clientSocket, new PrintWriter(clientSocket.getOutputStream(), true));
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
                     }
-                
-                });    
-				
-				// start server thread to handle client
+                });
+
+                // Start server thread to handle client
                 clientThread.start();
                 Thread.sleep(1);
-				
-			}
-	  	}
-		catch(Exception ex) {
-			ex.printStackTrace();
-		}
-	}
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
 
     // Method to handle client for each server thread
 	private static void handleClient(Socket clientSocket, PrintWriter clientOut) {
