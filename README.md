@@ -1,5 +1,9 @@
 # TailorFit
 
+## Video Demo
+
+![Video](./assets/Video-demo.mp4)
+
 ### 1. Objective
 
 The primary objective of the Personalized Fitness Guidance App is to offer a comprehensive, data-driven solution that caters to individual fitness goals by providing tailored diet and exercise recommendations. Utilizing the OpenAI API, the app aims to simulate the expertise of a fitness coach to guide users based on various personal metrics like weight, height, age, and specific fitness objectives such as weight loss, weight gain, or muscle building.
