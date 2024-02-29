@@ -2,7 +2,7 @@
 
 ## Video Demo
 
-![Video](./assets/Video-demo.mp4)
+./assets/Video-demo.mp4
 
 ### 1. Objective
 
