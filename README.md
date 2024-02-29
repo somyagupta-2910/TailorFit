@@ -2,7 +2,7 @@
 
 ## Video Demo
 
-https://drive.google.com/file/d/1JTnBnjTwHBbei6XvdTcVFxkSj8YUSNUy/view?usp=sharing
+<video src="https://github.com/somyagupta-2910/TailorFit/blob/main/assets/Video-demo.mp4"></video>
 
 ### 1. Objective
 
