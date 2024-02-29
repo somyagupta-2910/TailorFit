@@ -2,7 +2,7 @@
 
 ## Video Demo
 
-./assets/Video-demo.mp4
+https://drive.google.com/file/d/1JTnBnjTwHBbei6XvdTcVFxkSj8YUSNUy/view?usp=sharing
 
 ### 1. Objective
 
